@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "classification_model"
+version = "0.0.1"
+description = "In a highly competitive mobile market, pricing a new device correctly is crucial. This project uses Machine Learning to analyze sales data and hardware features (such as RAM, battery, and internal memory) from various brands. Instead of predicting an exact price, it classifies devices into price ranges, providing a strategic pricing tool for emerging mobile phone startups."
+authors = [
+  { name = "LASS" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+requires-python = "==3.11.9"
+
+
+[tool.ruff]
+line-length = 99
+src = ["classification_model"]
+include = ["pyproject.toml", "classification_model/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["classification_model"]
+force-sort-within-sections = true
+
