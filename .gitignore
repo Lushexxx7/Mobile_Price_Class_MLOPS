@@ -1,0 +1,41 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Variables de entorno / secretos
+.env
+*.env
+!.env.example
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# MLOps: modelos, artefactos y logs
+mlruns/
+mlartifacts/
+models/
+*.pkl
+*.joblib
+*.h5
+*.onnx
+logs/
+*.log
+
+# Datos pesados (descomenta si no quieres versionar los CSV)
+# data/
