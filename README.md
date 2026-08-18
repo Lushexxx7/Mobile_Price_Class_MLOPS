@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-In a highly competitive mobile market, pricing a new device correctly is crucial. This project uses Machine Learning to analyze sales data and hardware features (such as RAM, battery, and internal memory) from various brands. Instead of predicting an exact price, it classifies devices into price ranges, providing a strategic pricing tool for emerging mobile phone startups.
+"In a highly competitive mobile market, pricing a new device correctly is crucial. This project uses Machine Learning to analyze sales data and hardware features (such as RAM, battery, and internal memory) from various brands. Instead of predicting an exact price, it classifies devices into price ranges, providing a strategic pricing tool for emerging mobile phone startups."
 
 ## Project Organization
 
@@ -49,13 +49,12 @@ In a highly competitive mobile market, pricing a new device correctly is crucial
     │
     ├── features.py             <- Code to create features for modeling
     │
-    ├── modeling                
+    ├── modeling              
     │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
+    │   ├── predict.py          <- Code to run model inference with trained models        
     │   └── train.py            <- Code to train models
     │
     └── plots.py                <- Code to create visualizations
 ```
 
---------
-
+---
