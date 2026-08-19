@@ -1,3 +1,10 @@
+# Integrantes
+
+1. **Canaviri Yanahuaya Sergio Alexander**
+2. **Hualca Yavi Lizbeth**
+3. **Sanchez Calle Maria Yesica**
+4. **Sotillo Sanchez Luis Antonio**
+
 # Clasificación de precios de teléfonos
 
 Proyecto educativo de Machine Learning para clasificar teléfonos en cuatro
@@ -14,11 +21,11 @@ memoria interna y resolución; no intenta predecir un precio monetario exacto.
 
 Se comparan tres clasificadores mediante la misma interfaz polimórfica:
 
-| Modelo | Accuracy | Precision | Recall | F1 |
-|---|---:|---:|---:|---:|
-| Regresión Logística | 0.965 | 0.965 | 0.965 | 0.965 |
-| SVM | 0.890 | 0.890 | 0.890 | 0.890 |
-| Random Forest | 0.880 | 0.880 | 0.880 | 0.880 |
+| Modelo                | Accuracy | Precision | Recall |    F1 |
+| --------------------- | -------: | --------: | -----: | ----: |
+| Regresión Logística |    0.965 |     0.965 |  0.965 | 0.965 |
+| SVM                   |    0.890 |     0.890 |  0.890 | 0.890 |
+| Random Forest         |    0.880 |     0.880 |  0.880 | 0.880 |
 
 La selección se realiza por `accuracy`. En la ejecución actual ganó Regresión
 Logística. Random Forest se conserva para analizar la importancia de las
