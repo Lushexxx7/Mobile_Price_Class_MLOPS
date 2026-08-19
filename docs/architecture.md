@@ -22,6 +22,5 @@ selección y persistencia
 predicción por lotes
 ```
 
-`PipelineTelefonos` orquesta las clases del dominio. DVC describe las
-dependencias y salidas de cada etapa en `dvc.yaml`; Git conserva el código y
-los metadatos, mientras el almacenamiento DVC conserva los datos y artefactos.
+`PipelineTelefonos` orquesta las clases del dominio y mantiene separadas la
+carga, preparación, evaluación, persistencia e inferencia del modelo.

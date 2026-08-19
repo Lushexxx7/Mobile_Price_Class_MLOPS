@@ -17,16 +17,6 @@ su rango de precio puede apoyar las decisiones de lanzamiento de fabricantes y
 empresas emergentes. El sistema analiza características como RAM, batería,
 memoria interna y resolución; no intenta predecir un precio monetario exacto.
 
-## Integrantes
-
-- LizbethHY
-- Luis A. Sotillo Sanchez
-- Yesica
-
-Los nombres se obtuvieron del historial de autores del repositorio. Si el
-documento de entrega exige nombres legales completos, deben actualizarse antes
-de la presentación.
-
 ## Objetivo
 
 Construir una solución reproducible para clasificar teléfonos en cuatro rangos
@@ -120,9 +110,3 @@ columnas esperadas, la variable objetivo, la métrica de selección y los
 resultados de comparación. Las predicciones se escriben en
 `data/processed/predicciones.csv`.
 
-## Alcance MLOps
-
-La base actual cubre reproducibilidad, modularidad, pruebas y persistencia del
-modelo. Una fase posterior puede incorporar seguimiento de experimentos con
-MLflow, una API, Docker, integración continua y monitoreo sin modificar las
-interfaces centrales.
