@@ -1,7 +1,7 @@
-import pandas as pd
+﻿import pandas as pd
 import pytest
 
-from src.preprocessing import PreprocesadorTelefonos
+from src.data.preprocessing import PreprocesadorTelefonos
 
 
 @pytest.fixture
@@ -48,3 +48,4 @@ def test_preparar_inferencia_descarta_id_y_ordena_columnas():
     )
 
     assert resultado.columns.tolist() == ["blue", "ram"]
+

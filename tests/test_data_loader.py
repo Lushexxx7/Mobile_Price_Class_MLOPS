@@ -1,7 +1,7 @@
-import pandas as pd
+﻿import pandas as pd
 import pytest
 
-from src.data_loader import CargadorDatos
+from src.data.load_data import CargadorDatos
 from src.config import TARGET, TRAIN_PATH
 
 
@@ -40,3 +40,4 @@ def test_dataset_de_entrenamiento_del_proyecto():
     assert TARGET in datos.columns
     assert datos.drop(columns=[TARGET]).shape[1] == 20
     assert set(datos[TARGET].unique()) == {0, 1, 2, 3}
+

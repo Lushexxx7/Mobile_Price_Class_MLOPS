@@ -10,6 +10,23 @@ su rango de precio puede apoyar las decisiones de lanzamiento de fabricantes y
 empresas emergentes. El sistema analiza características como RAM, batería,
 memoria interna y resolución; no intenta predecir un precio monetario exacto.
 
+## Integrantes
+
+- LizbethHY
+- Luis A. Sotillo Sanchez
+- Yesica
+
+Los nombres se obtuvieron del historial de autores del repositorio. Si el
+documento de entrega exige nombres legales completos, deben actualizarse antes
+de la presentación.
+
+## Objetivo
+
+Construir una solución reproducible para clasificar teléfonos en cuatro rangos
+de precio a partir de 20 características técnicas. El proyecto aplica una
+estructura clásica de Cookiecutter Data Science, programación orientada a
+objetos y pruebas automatizadas.
+
 ## Modelos y resultados
 
 Se comparan tres clasificadores mediante la misma interfaz polimórfica:
@@ -63,11 +80,23 @@ pytest
 ## Estructura
 
 - `data/raw/`: datasets originales.
-- `data/processed/`: futuros datos transformados.
+- `data/external/`: fuentes externas sin modificar.
+- `data/interim/`: datos intermedios.
+- `data/processed/`: predicciones y salidas procesadas.
 - `notebooks/`: exploración, entrenamiento y predicción.
-- `src/`: código reutilizable.
+- `src/data/`: carga, validación y preprocesamiento de datos.
+- `src/features/`: construcción de características.
+- `src/models/`: entrenamiento, evaluación, pipeline y predicción.
 - `tests/`: pruebas unitarias.
 - `models/`: artefactos de modelos entrenados.
+- `reports/`: validaciones, informes y figuras.
+- `references/`: diccionarios y documentación de datos.
+- `docs/`: documentación adicional.
+
+Esta distribución sigue la variante clásica de Cookiecutter Data Science y
+conserva la arquitectura POO implementada. `Makefile`, `LICENSE`,
+`pyproject.toml`, `docs`, `references` y `reports/figures` completan los
+componentes estándar del proyecto.
 
 ## Diseño orientado a objetos
 
