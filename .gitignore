@@ -1,5 +1,10 @@
 # Data
-#/data/
+/data/
+
+# DVC
+.dvc/cache
+.dvc/tmp
+.dvc/config.local
 
 # Mac OS-specific storage files
 .DS_Store
@@ -152,6 +157,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.conda/
 
 # Spyder project settings
 .spyderproject
@@ -183,6 +189,10 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Editores / vs.code / SO 
+.vscode/
+Thumbs.db
 
 # Ruff stuff:
 .ruff_cache/
