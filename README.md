@@ -17,16 +17,6 @@ su rango de precio puede apoyar las decisiones de lanzamiento de fabricantes y
 empresas emergentes. El sistema analiza características como RAM, batería,
 memoria interna y resolución; no intenta predecir un precio monetario exacto.
 
-## Integrantes
-
-- LizbethHY
-- Luis A. Sotillo Sanchez
-- Yesica
-
-Los nombres se obtuvieron del historial de autores del repositorio. Si el
-documento de entrega exige nombres legales completos, deben actualizarse antes
-de la presentación.
-
 ## Objetivo
 
 Construir una solución reproducible para clasificar teléfonos en cuatro rangos
