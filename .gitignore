@@ -1,5 +1,7 @@
-# Data
-/data/
+# Data (versionado con DVC, no con Git)
+/data/raw/*.csv
+/data/processed/*.csv
+!/data/raw/.gitkeep
 
 # Mac OS-specific storage files
 .DS_Store
