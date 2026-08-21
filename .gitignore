@@ -1,5 +1,7 @@
 # Data
 /data/
+reports/*.pkl
+reports/*.csv
 
 # DVC
 .dvc/cache
