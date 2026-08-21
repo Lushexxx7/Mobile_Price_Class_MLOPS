@@ -1,0 +1,18 @@
+# Hiperparámetros del proyecto. DVC vigila estos valores: al cambiarlos,
+# `dvc repro` detecta que el modelo quedó obsoleto y lo reentrena.
+
+split:
+  test_size: 0.20
+  random_state: 42
+  target: "price_range"
+
+modelos:
+  metrica_seleccion: "accuracy"
+  logistica:
+    max_iter: 2000
+  random_forest:
+    n_estimators: 300
+  svm:
+    kernel: "rbf"
+    C: 10.0
+    gamma: "scale"

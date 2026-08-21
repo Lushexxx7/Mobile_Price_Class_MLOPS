@@ -1,12 +1,20 @@
 from pathlib import Path
 
+import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-RANDOM_STATE = 42
-TEST_SIZE = 0.20
-TARGET = "price_range"
+PARAMS_PATH = PROJECT_ROOT / "params.yaml"
+with open(PARAMS_PATH, encoding="utf-8") as archivo:
+    PARAMS = yaml.safe_load(archivo)
+
+RANDOM_STATE = PARAMS["split"]["random_state"]
+TEST_SIZE = PARAMS["split"]["test_size"]
+TARGET = PARAMS["split"]["target"]
+METRICA_SELECCION = PARAMS["modelos"]["metrica_seleccion"]
 
 TRAIN_PATH = PROJECT_ROOT / "data" / "raw" / "train.csv"
 TEST_PATH = PROJECT_ROOT / "data" / "raw" / "test.csv"
 MODEL_PATH = PROJECT_ROOT / "models" / "modelo_final.pkl"
+METRICS_PATH = PROJECT_ROOT / "metrics" / "eval.json"
+PREDICTIONS_PATH = PROJECT_ROOT / "data" / "processed" / "predicciones.csv"

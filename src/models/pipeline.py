@@ -4,7 +4,7 @@ from typing import Any
 import joblib
 import pandas as pd
 
-from src.config import MODEL_PATH, RANDOM_STATE, TARGET, TEST_SIZE
+from src.config import METRICA_SELECCION, MODEL_PATH, RANDOM_STATE, TARGET, TEST_SIZE
 from src.data.load_data import CargadorDatos
 from src.models.evaluate import EvaluadorModelo
 from src.models.train import ModeloClasificacion, crear_modelos
@@ -15,14 +15,14 @@ class PipelineTelefonos:
     def __init__(
         self,
         modelos: list[ModeloClasificacion] | None = None,
-        metrica_seleccion: str = "accuracy",
+        metrica_seleccion: str = METRICA_SELECCION,
         target: str = TARGET,
         test_size: float = TEST_SIZE,
         random_state: int = RANDOM_STATE,
     ):
         metricas_validas = {"accuracy", "precision", "recall", "f1"}
         if metrica_seleccion not in metricas_validas:
-            raise ValueError(f"MÃ©trica no vÃ¡lida: {metrica_seleccion}")
+            raise ValueError(f"Métrica no válida: {metrica_seleccion}")
         self.modelos = modelos or crear_modelos(random_state)
         self.metrica_seleccion = metrica_seleccion
         self.preprocesador = PreprocesadorTelefonos(

@@ -10,7 +10,7 @@ def main() -> None:
 
     ganador = resultados.iloc[0]
     METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(METRICS_PATH, "w", encoding="utf-8") as f:
+    with open(METRICS_PATH, "w", encoding="utf-8") as archivo:
         json.dump(
             {
                 "modelo": str(ganador["modelo"]),
@@ -19,7 +19,7 @@ def main() -> None:
                 "recall": float(ganador["recall"]),
                 "f1": float(ganador["f1"]),
             },
-            f,
+            archivo,
             indent=4,
             ensure_ascii=False,
         )

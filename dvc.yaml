@@ -1,0 +1,40 @@
+stages:
+  train:
+    cmd: python main.py
+    deps:
+      - main.py
+      - src/config.py
+      - src/data/load_data.py
+      - src/data/preprocessing.py
+      - src/models/train.py
+      - src/models/evaluate.py
+      - src/models/pipeline.py
+      - data/raw/train.csv
+    params:
+      - split.test_size
+      - split.random_state
+      - split.target
+      - modelos.metrica_seleccion
+      - modelos.logistica.max_iter
+      - modelos.random_forest.n_estimators
+      - modelos.svm.kernel
+      - modelos.svm.C
+      - modelos.svm.gamma
+    outs:
+      - models/modelo_final.pkl
+    metrics:
+      - metrics/eval.json:
+          cache: false
+
+  predict:
+    cmd: python -m src.models.predict_batch
+    deps:
+      - src/models/predict_batch.py
+      - src/config.py
+      - src/data/load_data.py
+      - src/data/preprocessing.py
+      - src/models/pipeline.py
+      - models/modelo_final.pkl
+      - data/raw/test.csv
+    outs:
+      - data/processed/predicciones.csv

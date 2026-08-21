@@ -9,8 +9,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-from src.config import RANDOM_STATE
+from src.config import PARAMS, RANDOM_STATE
 
+_LOGISTICA = PARAMS["modelos"]["logistica"]
+_RANDOM_FOREST = PARAMS["modelos"]["random_forest"]
+_SVM = PARAMS["modelos"]["svm"]
 
 class ModeloClasificacion(ABC):
     """Clase base que encapsula un estimador de clasificación."""
@@ -39,7 +42,7 @@ class ModeloRegresionLogistica(ModeloClasificacion):
                 ("scaler", StandardScaler()),
                 (
                     "classifier",
-                    LogisticRegression(max_iter=2000, random_state=random_state),
+                    LogisticRegression(max_iter=_LOGISTICA["max_iter"], random_state=random_state),
                 ),
             ]
         )
@@ -50,7 +53,7 @@ class ModeloRandomForest(ModeloClasificacion):
 
     def __init__(self, random_state: int = RANDOM_STATE):
         modelo = RandomForestClassifier(
-            n_estimators=300,
+            n_estimators=_RANDOM_FOREST["n_estimators"],
             random_state=random_state,
             n_jobs=-1,
         )
@@ -72,9 +75,9 @@ class ModeloSVM(ModeloClasificacion):
                 (
                     "classifier",
                     SVC(
-                        kernel="rbf",
-                        C=10.0,
-                        gamma="scale",
+                        kernel=_SVM["kernel"],
+                        C=_SVM["C"],
+                        gamma=_SVM["gamma"],
                         random_state=random_state,
                     ),
                 ),
