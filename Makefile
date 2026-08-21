@@ -1,4 +1,4 @@
-.PHONY: install test train notebooks
+.PHONY: install test train repro push pull notebooks
 
 install:
 	pip install -r requirements.txt
@@ -6,8 +6,16 @@ install:
 test:
 	pytest
 
-train:
-	python main.py
+train: repro
+
+repro:
+	dvc repro
+
+push:
+	dvc push
+
+pull:
+	dvc pull
 
 notebooks:
 	jupyter notebook
