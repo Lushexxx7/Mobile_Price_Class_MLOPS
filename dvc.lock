@@ -9,12 +9,12 @@ stages:
       size: 122403
     - path: main.py
       hash: md5
-      md5: 52088e04795060586d85dcdac5edcf42
-      size: 1034
+      md5: 6fe23afddca9b1df22a32e4f205701e1
+      size: 2116
     - path: src/config.py
       hash: md5
-      md5: 3135506626c54fc3f7c5859c13848336
-      size: 710
+      md5: 336b6c7c829f3d6097dde1ee1eedc4ea
+      size: 920
     - path: src/data/load_data.py
       hash: md5
       md5: 1d83780afb17ac77d899312eba02836f
@@ -29,8 +29,8 @@ stages:
       size: 1009
     - path: src/models/pipeline.py
       hash: md5
-      md5: 8441110f245cbdbb5226bafb7603cf06
-      size: 4100
+      md5: 435328afb2714aaa360394323f1e2ce7
+      size: 4278
     - path: src/models/train.py
       hash: md5
       md5: 75e942212ebf7053d04c11036438184e
@@ -55,6 +55,18 @@ stages:
       hash: md5
       md5: a094fe9944737873264a0bd96d886d4b
       size: 3473
+    - path: plots/comparacion_modelos.csv
+      hash: md5
+      md5: 6498c32d80905f10de56263f0a654498
+      size: 226
+    - path: plots/importancias.csv
+      hash: md5
+      md5: 4ed0decbf7318bfe9e944d30ea44e359
+      size: 607
+    - path: plots/matriz_confusion.csv
+      hash: md5
+      md5: ea5356179542b909978ced5d48efd354
+      size: 2017
   predict:
     cmd: python -m src.models.predict_batch
     deps:
@@ -68,8 +80,8 @@ stages:
       size: 3473
     - path: src/config.py
       hash: md5
-      md5: 3135506626c54fc3f7c5859c13848336
-      size: 710
+      md5: 336b6c7c829f3d6097dde1ee1eedc4ea
+      size: 920
     - path: src/data/load_data.py
       hash: md5
       md5: 1d83780afb17ac77d899312eba02836f
@@ -80,8 +92,8 @@ stages:
       size: 1493
     - path: src/models/pipeline.py
       hash: md5
-      md5: 8441110f245cbdbb5226bafb7603cf06
-      size: 4100
+      md5: 435328afb2714aaa360394323f1e2ce7
+      size: 4278
     - path: src/models/predict_batch.py
       hash: md5
       md5: d0a0cbee857527b40332b239615a4e52

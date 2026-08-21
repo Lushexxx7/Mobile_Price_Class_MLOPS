@@ -34,10 +34,13 @@ class PipelineTelefonos:
         self.mejor_modelo: ModeloClasificacion | None = None
         self.columnas: list[str] = []
         self.resultados: pd.DataFrame | None = None
+        self.y_val: pd.Series | None = None
+        self.predicciones: dict[str, Any] = {}
 
     def entrenar(self, datos: pd.DataFrame) -> pd.DataFrame:
         x, y = self.preprocesador.separar_variables(datos)
         x_train, x_val, y_train, y_val = self.preprocesador.dividir_datos(x, y)
+        self.y_val = y_val
         self.columnas = x.columns.tolist()
         filas = []
 
@@ -46,6 +49,7 @@ class PipelineTelefonos:
             predicciones = modelo.predecir(x_val)
             metricas = self.evaluador.evaluar(y_val, predicciones)
             filas.append({"modelo": modelo.nombre, **metricas})
+            self.predicciones[modelo.nombre] = predicciones
 
         self.resultados = pd.DataFrame(filas).sort_values(
             self.metrica_seleccion, ascending=False

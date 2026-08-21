@@ -25,6 +25,22 @@ stages:
     metrics:
       - metrics/eval.json:
           cache: false
+    plots:
+      - plots/comparacion_modelos.csv:
+          template: bar_horizontal
+          x: f1
+          y: modelo
+          cache: false
+      - plots/matriz_confusion.csv:
+          template: confusion
+          x: real
+          y: prediccion
+          cache: false
+      - plots/importancias.csv:
+          template: bar_horizontal
+          x: importancia
+          y: variable
+          cache: false
 
   predict:
     cmd: python -m src.models.predict_batch
