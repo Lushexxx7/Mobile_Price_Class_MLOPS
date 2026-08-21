@@ -1,14 +1,14 @@
-from pathlib import Path
+﻿from pathlib import Path
 from typing import Any
 
 import joblib
 import pandas as pd
 
 from src.config import MODEL_PATH, RANDOM_STATE, TARGET, TEST_SIZE
-from src.data_loader import CargadorDatos
-from src.evaluation import EvaluadorModelo
-from src.models import ModeloClasificacion, crear_modelos
-from src.preprocessing import PreprocesadorTelefonos
+from src.data.load_data import CargadorDatos
+from src.models.evaluate import EvaluadorModelo
+from src.models.train import ModeloClasificacion, crear_modelos
+from src.data.preprocessing import PreprocesadorTelefonos
 
 
 class PipelineTelefonos:
@@ -22,7 +22,7 @@ class PipelineTelefonos:
     ):
         metricas_validas = {"accuracy", "precision", "recall", "f1"}
         if metrica_seleccion not in metricas_validas:
-            raise ValueError(f"Métrica no válida: {metrica_seleccion}")
+            raise ValueError(f"MÃ©trica no vÃ¡lida: {metrica_seleccion}")
         self.modelos = modelos or crear_modelos(random_state)
         self.metrica_seleccion = metrica_seleccion
         self.preprocesador = PreprocesadorTelefonos(
@@ -101,3 +101,4 @@ class PipelineTelefonos:
         resultados = pipeline.entrenar(datos)
         pipeline.guardar(ruta_modelo)
         return pipeline, resultados
+

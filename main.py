@@ -1,5 +1,5 @@
-from src.config import MODEL_PATH, TRAIN_PATH
-from src.pipeline import PipelineTelefonos
+﻿from src.config import MODEL_PATH, TRAIN_PATH
+from src.models.pipeline import PipelineTelefonos
 
 
 def main() -> None:
@@ -13,3 +13,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

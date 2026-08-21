@@ -1,7 +1,7 @@
-import pandas as pd
+﻿import pandas as pd
 
-from src.models import ModeloRegresionLogistica
-from src.pipeline import PipelineTelefonos
+from src.models.train import ModeloRegresionLogistica
+from src.models.pipeline import PipelineTelefonos
 
 
 def test_pipeline_entrena_guarda_y_predice(tmp_path):
@@ -26,3 +26,4 @@ def test_pipeline_entrena_guarda_y_predice(tmp_path):
     assert resultados["modelo"].tolist() == ["Regresión Logística"]
     assert ruta.is_file()
     assert len(predicciones) == len(datos)
+
