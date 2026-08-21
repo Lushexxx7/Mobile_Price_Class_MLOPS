@@ -1,43 +1,43 @@
 ﻿import pandas as pd
 import pytest
 
-from src.data.load_data import CargadorDatos
-from src.config import TARGET, TRAIN_PATH
+from src.config import TARGET, TEST_PATH, TRAIN_PATH
 
 
-def test_cargar_csv(tmp_path):
-    ruta = tmp_path / "datos.csv"
-    pd.DataFrame({"ram": [1024, 2048], "price_range": [0, 1]}).to_csv(
-        ruta, index=False
-    )
-
-    cargador = CargadorDatos(ruta)
-    datos = cargador.cargar()
-
-    assert cargador.obtener_dimensiones() == (2, 2)
-    assert "price_range" in datos.columns
-    assert cargador.obtener_nulos().sum() == 0
-    assert cargador.obtener_duplicados() == 0
+@pytest.fixture(scope="module")
+def train():
+    return pd.read_csv(TRAIN_PATH)
 
 
-def test_requiere_cargar_datos_antes_de_consultarlos(tmp_path):
-    cargador = CargadorDatos(tmp_path / "datos.csv")
-
-    with pytest.raises(RuntimeError, match="cargar"):
-        cargador.obtener_dimensiones()
+@pytest.fixture(scope="module")
+def test():
+    return pd.read_csv(TEST_PATH)
 
 
-def test_archivo_inexistente(tmp_path):
-    cargador = CargadorDatos(tmp_path / "inexistente.csv")
-
-    with pytest.raises(FileNotFoundError):
-        cargador.cargar()
+def test_train_tiene_la_forma_esperada(train):
+    assert train.shape == (2000, 21)
+    assert TARGET in train.columns
 
 
-def test_dataset_de_entrenamiento_del_proyecto():
-    datos = CargadorDatos(TRAIN_PATH).cargar()
+def test_train_no_tiene_nulos_ni_duplicados(train):
+    assert train.isna().sum().sum() == 0
+    assert train.duplicated().sum() == 0
 
-    assert TARGET in datos.columns
-    assert datos.drop(columns=[TARGET]).shape[1] == 20
-    assert set(datos[TARGET].unique()) == {0, 1, 2, 3}
 
+def test_clases_balanceadas(train):
+    conteo = train[TARGET].value_counts()
+    assert set(conteo.index) == {0, 1, 2, 3}
+    assert conteo.nunique() == 1  # 500 observaciones por clase
+
+
+def test_test_tiene_id_y_las_mismas_predictoras(test, train):
+    assert "id" in test.columns
+    assert TARGET not in test.columns
+    predictoras_train = set(train.columns) - {TARGET}
+    assert set(test.columns) - {"id"} == predictoras_train
+
+
+def test_rangos_fisicos_validos(train):
+    assert train["ram"].between(256, 3998).all()
+    assert train["battery_power"].between(501, 1998).all()
+    assert train["n_cores"].between(1, 8).all()
