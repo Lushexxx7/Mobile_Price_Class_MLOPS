@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: python:3.12-slim
+    container_name: mlflow_server
+    ports:
+      - "5008:5000"
+    volumes:
+      - ./mlruns:/mlruns
+      - mlflow_db:/mlflow_db
+    command: >
+      bash -c "pip install mlflow && 
+               mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow_db/mlflow.db --default-artifact-root /mlruns"
+
+  fastapi_app:
+    build: .
+    container_name: fastapi_server
+    ports:
+      - "8008:8000"
+    depends_on:
+      - mlflow
+    volumes:
+      - ./mlruns:/mlruns # El contenedor de FastAPI necesita acceso a los modelos guardados
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+
+volumes:
+  mlflow_db:
