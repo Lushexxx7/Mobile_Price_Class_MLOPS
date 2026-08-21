@@ -7,5 +7,5 @@ representan rangos de precio crecientes y tienen 500 observaciones cada una.
 El conjunto de prueba contiene 1,000 observaciones, un identificador `id` y
 las mismas 20 variables predictoras. No incluye la variable objetivo.
 
-Los archivos originales se mantienen en `data/raw/`. No deben editarse
-manualmente.
+Los archivos originales se mantienen en `data/raw/` y se versionan mediante
+DVC. No deben editarse manualmente.

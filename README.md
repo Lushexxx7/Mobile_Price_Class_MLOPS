@@ -110,3 +110,20 @@ columnas esperadas, la variable objetivo, la métrica de selección y los
 resultados de comparación. Las predicciones se escriben en
 `data/processed/predicciones.csv`.
 
+## Versionado de datos con DVC
+
+DVC versiona `train.csv`, `test.csv`, el modelo final y las predicciones. El
+remoto predeterminado es la carpeta compartida `gdrive_remote` de Google Drive.
+Las credenciales OAuth se guardan únicamente en `.dvc/config.local` y nunca se
+suben a Git.
+
+```powershell
+dvc pull
+dvc repro
+dvc metrics show
+dvc push
+```
+
+El pipeline de `dvc.yaml` ejecuta validación, entrenamiento y predicción. Los
+hiperparámetros están en `params.yaml` y las métricas en
+`reports/metrics.json`.
