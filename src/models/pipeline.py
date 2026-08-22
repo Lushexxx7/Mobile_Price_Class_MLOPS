@@ -37,7 +37,7 @@ class PipelineTelefonos:
         self.columnas: list[str] = []
         self.resultados: pd.DataFrame | None = None
 
-    def entrenar(self, datos: pd.DataFrame) -> pd.DataFrame:
+    def entrenar(self, datos: pd.DataFrame, dvc_version: str = "unknown") -> pd.DataFrame:
         x, y = self.preprocesador.separar_variables(datos)
         x_train, x_val, y_train, y_val = self.preprocesador.dividir_datos(x, y)
         self.columnas = x.columns.tolist()
@@ -55,6 +55,7 @@ class PipelineTelefonos:
                 
                 # Log model in MLflow
                 mlflow.sklearn.log_model(modelo.modelo, "model")
+                mlflow.set_tag("dvc_version", dvc_version)
                 
                 filas.append({"modelo": modelo.nombre, **metricas})
 
@@ -107,9 +108,11 @@ class PipelineTelefonos:
         cls, ruta_datos: str | Path, ruta_modelo: str | Path = MODEL_PATH
     ) -> tuple["PipelineTelefonos", pd.DataFrame]:
         """Ejecuta el flujo completo a partir de un CSV."""
-        datos = CargadorDatos(ruta_datos).cargar()
+        cargador = CargadorDatos(ruta_datos)
+        datos = cargador.cargar()
+        dvc_version = cargador.get_dvc_version()
         pipeline = cls()
-        resultados = pipeline.entrenar(datos)
+        resultados = pipeline.entrenar(datos, dvc_version=dvc_version)
         pipeline.guardar(ruta_modelo)
         return pipeline, resultados
 

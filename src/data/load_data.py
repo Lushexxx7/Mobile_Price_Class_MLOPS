@@ -25,6 +25,20 @@ class CargadorDatos:
     def obtener_duplicados(self) -> int:
         return int(self._obtener_datos().duplicated().sum())
 
+    def get_dvc_version(self) -> str:
+        """Obtiene el hash del commit actual de Git para versionado de datos."""
+        try:
+            import subprocess
+            commit_hash = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], 
+                cwd=self.ruta.parent,
+                stderr=subprocess.STDOUT
+            ).decode("utf-8").strip()
+            return commit_hash
+        except Exception:
+            return "unknown_version"
+
+
     def _obtener_datos(self) -> pd.DataFrame:
         if self._datos is None:
             raise RuntimeError("Primero debes ejecutar cargar()")
