@@ -28,11 +28,11 @@ objetos y pruebas automatizadas.
 
 Se comparan tres clasificadores mediante la misma interfaz polimórfica:
 
-| Modelo                | Accuracy | Precision | Recall |    F1 |
-| --------------------- | -------: | --------: | -----: | ----: |
+| Modelo              | Accuracy | Precision | Recall |    F1 |
+| ------------------- | -------: | --------: | -----: | ----: |
 | Regresión Logística |    0.965 |     0.965 |  0.965 | 0.965 |
-| SVM                   |    0.890 |     0.890 |  0.890 | 0.890 |
-| Random Forest         |    0.880 |     0.880 |  0.880 | 0.880 |
+| SVM                 |    0.890 |     0.890 |  0.890 | 0.890 |
+| Random Forest       |    0.880 |     0.880 |  0.880 | 0.880 |
 
 La selección se realiza por `accuracy`. En la ejecución actual ganó Regresión
 Logística. Random Forest se conserva para analizar la importancia de las
@@ -47,8 +47,11 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Los datos originales deben permanecer en `data/raw/train.csv` y
-`data/raw/test.csv`.
+Los datos originales (`train.csv`, `test.csv`) y el modelo entrenado
+(`modelo_final.pkl`) **no viven en Git**: se versionan con DVC y se
+descargan desde Google Drive. Después de clonar el repositorio, sigue la
+sección [Versionado de datos con DVC](#versionado-de-datos-con-dvc) antes de
+ejecutar el proyecto.
 
 ## Ejecución
 
@@ -76,6 +79,8 @@ pytest
 
 ## Estructura
 
+- `data/raw/`: datasets originales (versionados con DVC, no con Git).
+- `data/processed/`: futuros datos transformados.
 - `data/raw/`: datasets originales.
 - `data/external/`: fuentes externas sin modificar.
 - `data/interim/`: datos intermedios.
@@ -85,6 +90,7 @@ pytest
 - `src/features/`: construcción de características.
 - `src/models/`: entrenamiento, evaluación, pipeline y predicción.
 - `tests/`: pruebas unitarias.
+- `models/`: artefactos de modelos entrenados (versionados con DVC).
 - `models/`: artefactos de modelos entrenados.
 - `reports/`: validaciones, informes y figuras.
 - `references/`: diccionarios y documentación de datos.
@@ -116,9 +122,9 @@ Para este proyecto usamos **DVC (Data Version Control)** porque los datasets y e
 
 La idea es sencilla:
 
-* **GitHub** guarda nuestro código y los archivos `.dvc`.
-* **DVC** se encarga de controlar las versiones de los datos y del modelo.
-* **Google Drive** almacena los archivos reales.
+- **GitHub** guarda nuestro código y los archivos `.dvc`.
+- **DVC** se encarga de controlar las versiones de los datos y del modelo.
+- **Google Drive** almacena los archivos reales.
 
 De esta manera podemos trabajar con Git y DVC juntos sin tener que subir los archivos pesados al repositorio.
 
@@ -237,8 +243,8 @@ dvc push
 
 Aquí ocurre algo importante:
 
-* GitHub recibe los archivos `.dvc`.
-* Google Drive recibe los archivos reales.
+- GitHub recibe los archivos `.dvc`.
+- Google Drive recibe los archivos reales.
 
 Por eso los datasets no aparecen directamente dentro del repositorio de GitHub.
 
@@ -364,10 +370,123 @@ git push
 
 **En pocas palabras:** Git controla el código y la versión del proyecto, mientras que DVC controla las versiones de los datos y del modelo, utilizando Google Drive para almacenar los archivos reales.
 
-
 ## Alcance MLOps
 
-La base actual cubre reproducibilidad, modularidad, pruebas y persistencia del
-modelo. Una fase posterior puede incorporar seguimiento de experimentos con
-MLflow, una API, Docker, integración continua y monitoreo sin modificar las
-interfaces centrales.
+Este proyecto usa [DVC](https://dvc.org) para versionar los datasets
+(`data/raw/train.csv`, `data/raw/test.csv`) y el modelo final
+(`models/modelo_final.pkl`). Git solo guarda el código y los archivos
+puntero `.dvc`; el contenido real pesado vive en un remote de Google Drive.
+
+### 1. Instalar DVC
+
+```powershell
+pip install "dvc[gdrive]"
+```
+
+(ya incluido en `requirements.txt`)
+
+### 2. Clonar el repositorio y descargar los datos
+
+```powershell
+git clone https://github.com/Lushexxx7/Mobile_Price_Class_MLOPS.git
+cd Mobile_Price_Class_MLOPS
+```
+
+Configura las credenciales de OAuth de forma **local** (nunca se suben a
+Git, se guardan en `.dvc/config.local`):
+
+```powershell
+dvc remote modify --local gdrive_remote gdrive_client_id 'TU_CLIENT_ID'
+dvc remote modify --local gdrive_remote gdrive_client_secret 'TU_CLIENT_SECRET'
+```
+
+Pide el `client_id` y `client_secret` a quien administra el proyecto de
+Google Cloud (`DVC-MobilePrice`). También necesitas:
+
+- Ser agregado como colaborador de la carpeta de Google Drive del remote.
+- Ser agregado como **usuario de prueba** en la pantalla de consentimiento
+  OAuth del proyecto de Google Cloud (si no, Google bloqueará el acceso).
+
+Luego descarga los datos y el modelo reales:
+
+```powershell
+dvc pull
+```
+
+La primera vez se abrirá el navegador para autenticarte con tu cuenta de
+Google.
+
+### 3. Flujo de trabajo diario
+
+Después de modificar o regenerar datasets/modelos:
+
+```powershell
+dvc add data/raw/train.csv        # o el archivo que hayas cambiado
+git add data/raw/train.csv.dvc
+git commit -m "feat(data): update train.csv"
+dvc push                          # sube el archivo real a Drive
+git push                          # sube el puntero .dvc a GitHub
+```
+
+Para volver a un estado anterior:
+
+```powershell
+git checkout <commit-o-rama>
+dvc checkout
+```
+
+## Seguimiento de experimentos con MLflow
+
+También utilizamos **MLflow** como herramienta de apoyo dentro del flujo MLOps para registrar y comparar los experimentos de entrenamiento de los modelos.
+
+MLflow permite llevar un seguimiento de:
+
+- **Parámetros:** configuración utilizada durante el entrenamiento.
+- **Métricas:** accuracy, precision, recall y F1-score.
+- **Modelos:** modelos generados durante los experimentos.
+- **Experimentos:** comparación de diferentes modelos y ejecuciones.
+
+En nuestro proyecto se comparan modelos como **Regresión Logística, SVM y Random Forest**, registrando sus resultados para facilitar la selección del modelo con mejor rendimiento.
+
+Para iniciar la interfaz de MLflow:
+
+```powershell
+mlflow ui
+```
+
+Después se puede acceder desde el navegador a la interfaz local de MLflow para revisar y comparar los experimentos.
+
+### Flujo MLOps
+
+```text
+GitHub
+  │
+  │ Código
+  ▼
+MLflow
+  │
+  │ Experimentos, parámetros y métricas
+  ▼
+DVC
+  │
+  │ Datos y modelos
+  ▼
+Google Drive
+  │
+  │ Almacenamiento de archivos pesados
+  ▼
+Datos y modelos versionados
+```
+
+**En resumen:** GitHub controla el código, **DVC** controla las versiones de los datos y modelos, y **MLflow** permite registrar y comparar los experimentos y resultados de los modelos.
+
+### Notas de seguridad
+
+- `.dvc/config` (versionado en Git) solo contiene la URL del remote — **sin
+  secretos**.
+- `.dvc/config.local` guarda las credenciales de OAuth y está en
+  `.gitignore` por defecto. Nunca lo subas manualmente ni cambies eso.
+- Si alguna vez ves un secreto en un commit antes de hacer `git push`,
+  detente y reescribe el historial (`git reset --soft` al commit anterior)
+  en lugar de solo corregirlo en un commit nuevo — GitHub revisa todos los
+  commits del push, no solo el estado final.
