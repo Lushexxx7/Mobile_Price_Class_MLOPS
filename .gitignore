@@ -9,6 +9,11 @@ reports/*.csv
 .dvc/config.local
 /dvc_plots/
 
+# MLflow
+mlflow.db
+mlruns/
+mlartifacts/
+
 # Mac OS-specific storage files
 .DS_Store
 
