@@ -96,8 +96,8 @@ stages:
       size: 4278
     - path: src/models/predict_batch.py
       hash: md5
-      md5: d0a0cbee857527b40332b239615a4e52
-      size: 669
+      md5: 71685522349b5ede969bdeff5f9ab9a7
+      size: 649
     outs:
     - path: data/processed/predicciones.csv
       hash: md5
