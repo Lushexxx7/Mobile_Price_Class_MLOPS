@@ -192,3 +192,8 @@ Thumbs.db
 
 # PyPI configuration file
 .pypirc
+
+# MLflow local
+mlflow.db
+mlruns/
+mlartifacts/

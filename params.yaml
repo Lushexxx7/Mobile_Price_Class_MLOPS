@@ -14,3 +14,18 @@ svm:
   gamma: scale
 selection:
   metric: accuracy
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: telefonos_price_classification
+  registered_model_name: TelefonosPriceClassifier
+hyperparameter_search:
+  logistic_regression:
+    C: [0.1, 10.0]
+  random_forest:
+    trials:
+      - n_estimators: 200
+        max_depth: null
+      - n_estimators: 300
+        max_depth: 20
+  svm:
+    C: [1.0, 10.0]

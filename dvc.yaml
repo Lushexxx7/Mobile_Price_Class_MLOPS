@@ -23,6 +23,7 @@ stages:
       - random_forest
       - svm
       - selection
+      - mlflow
     outs:
       - models/modelo_final.pkl
     metrics:
@@ -36,3 +37,20 @@ stages:
       - scripts/predict.py
     outs:
       - data/processed/predicciones.csv
+  tune:
+    cmd: python -m scripts.tune_hyperparameters
+    deps:
+      - data/raw/train.csv
+      - scripts/tune_hyperparameters.py
+      - src
+    params:
+      - data
+      - logistic_regression
+      - random_forest
+      - svm
+      - selection
+      - mlflow
+      - hyperparameter_search
+    metrics:
+      - reports/hyperparameter_search.json:
+          cache: false
