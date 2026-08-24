@@ -1,9 +1,0 @@
-{
-  "model": "SVM",
-  "best_params": {
-    "C": 100,
-    "gamma": "scale",
-    "kernel": "linear"
-  },
-  "best_cv_score": 0.974
-}
