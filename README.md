@@ -435,6 +435,51 @@ git checkout <commit-o-rama>
 dvc checkout
 ```
 
+## Seguimiento de experimentos con MLflow
+
+También utilizamos **MLflow** como herramienta de apoyo dentro del flujo MLOps para registrar y comparar los experimentos de entrenamiento de los modelos.
+
+MLflow permite llevar un seguimiento de:
+
+- **Parámetros:** configuración utilizada durante el entrenamiento.
+- **Métricas:** accuracy, precision, recall y F1-score.
+- **Modelos:** modelos generados durante los experimentos.
+- **Experimentos:** comparación de diferentes modelos y ejecuciones.
+
+En nuestro proyecto se comparan modelos como **Regresión Logística, SVM y Random Forest**, registrando sus resultados para facilitar la selección del modelo con mejor rendimiento.
+
+Para iniciar la interfaz de MLflow:
+
+```powershell
+mlflow ui
+```
+
+Después se puede acceder desde el navegador a la interfaz local de MLflow para revisar y comparar los experimentos.
+
+### Flujo MLOps
+
+```text
+GitHub
+  │
+  │ Código
+  ▼
+MLflow
+  │
+  │ Experimentos, parámetros y métricas
+  ▼
+DVC
+  │
+  │ Datos y modelos
+  ▼
+Google Drive
+  │
+  │ Almacenamiento de archivos pesados
+  ▼
+Datos y modelos versionados
+```
+
+**En resumen:** GitHub controla el código, **DVC** controla las versiones de los datos y modelos, y **MLflow** permite registrar y comparar los experimentos y resultados de los modelos.
+
 ### Notas de seguridad
 
 - `.dvc/config` (versionado en Git) solo contiene la URL del remote — **sin
