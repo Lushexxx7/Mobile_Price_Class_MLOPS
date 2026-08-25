@@ -35,12 +35,14 @@ class PipelineTelefonos:
         self.columnas: list[str] = []
         self.resultados: pd.DataFrame | None = None
         self.y_val: pd.Series | None = None
+        self.x_val: pd.DataFrame | None = None     
         self.predicciones: dict[str, Any] = {}
 
     def entrenar(self, datos: pd.DataFrame) -> pd.DataFrame:
         x, y = self.preprocesador.separar_variables(datos)
         x_train, x_val, y_train, y_val = self.preprocesador.dividir_datos(x, y)
         self.y_val = y_val
+        self.x_val = x_val                          
         self.columnas = x.columns.tolist()
         filas = []
 

@@ -9,6 +9,7 @@ stages:
       - src/models/train.py
       - src/models/evaluate.py
       - src/models/pipeline.py
+      - src/tracking/mlflow_tracker.py
       - data/raw/train.csv
     params:
       - split.test_size

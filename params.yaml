@@ -16,3 +16,12 @@ modelos:
     kernel: "rbf"
     C: 10.0
     gamma: "scale"
+    
+# Configuración de MLflow. Cambiar el nombre del
+# experimento no debe invalidar el modelo entrenado.
+mlflow:
+  activo: true
+  tracking_uri: "sqlite:///mlflow.db"
+  experimento: "Mobile_Price_Classification_v1"
+  registro_modelo: "Mobile_Price_Classifier"
+  alias_produccion: "champion"

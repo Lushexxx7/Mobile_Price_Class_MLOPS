@@ -19,3 +19,6 @@ pull:
 
 notebooks:
 	jupyter notebook
+
+mlflow-ui:
+	mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000 --workers 1

@@ -22,3 +22,18 @@ PLOTS_DIR = PROJECT_ROOT / "plots"
 COMPARACION_PLOT_PATH = PLOTS_DIR / "comparacion_modelos.csv"
 CONFUSION_PLOT_PATH = PLOTS_DIR / "matriz_confusion.csv"
 IMPORTANCIAS_PLOT_PATH = PLOTS_DIR / "importancias.csv"
+
+# --- MLflow ---
+MLFLOW = PARAMS.get("mlflow", {})
+MLFLOW_ACTIVO = bool(MLFLOW.get("activo", False))
+MLFLOW_EXPERIMENTO = MLFLOW.get("experimento", "Mobile_Price_Classification")
+MLFLOW_REGISTRO_MODELO = MLFLOW.get("registro_modelo", "Mobile_Price_Classifier")
+MLFLOW_ALIAS_PRODUCCION = MLFLOW.get("alias_produccion", "champion")
+
+# La URI relativa se ancla a la raíz del proyecto para que funcione igual
+# ejecutando `python main.py`, `dvc repro` o pytest desde cualquier carpeta.
+_URI = MLFLOW.get("tracking_uri", "sqlite:///mlflow.db")
+if _URI.startswith("sqlite:///") and not Path(_URI.replace("sqlite:///", "")).is_absolute():
+    MLFLOW_TRACKING_URI = f"sqlite:///{(PROJECT_ROOT / 'mlflow.db').as_posix()}"
+else:
+    MLFLOW_TRACKING_URI = _URI

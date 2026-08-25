@@ -9,12 +9,12 @@ stages:
       size: 122403
     - path: main.py
       hash: md5
-      md5: 6fe23afddca9b1df22a32e4f205701e1
-      size: 2116
+      md5: 4cf0b6d15c7c6ffbf5e6f44640250fd0
+      size: 4950
     - path: src/config.py
       hash: md5
-      md5: 336b6c7c829f3d6097dde1ee1eedc4ea
-      size: 920
+      md5: 51fc266b61ceee83f890f309949c9e54
+      size: 1672
     - path: src/data/load_data.py
       hash: md5
       md5: 1d83780afb17ac77d899312eba02836f
@@ -29,12 +29,16 @@ stages:
       size: 1009
     - path: src/models/pipeline.py
       hash: md5
-      md5: 435328afb2714aaa360394323f1e2ce7
-      size: 4278
+      md5: ac250d797fc8845295190c204b1a33c9
+      size: 4383
     - path: src/models/train.py
       hash: md5
       md5: 75e942212ebf7053d04c11036438184e
       size: 2890
+    - path: src/tracking/mlflow_tracker.py
+      hash: md5
+      md5: fbcbf204277d4e9fe9b17b512dc33860
+      size: 7690
     params:
       params.yaml:
         modelos.logistica.max_iter: 2000
