@@ -56,6 +56,7 @@ def main() -> None:
             resultados.append({**registro, "parametros": parametros})
         metrica = str(PARAMS["selection"]["metric"])
         mejor = max(resultados, key=lambda item: item["metricas"][metrica])
+        rastreador.registrar_resumen(resultados, "busqueda_hiperparametros")
         mlflow.log_metric(f"best_{metrica}", mejor["metricas"][metrica])
         mlflow.log_param("best_child_run_id", mejor["run_id"])
         version = rastreador.registrar_y_asignar_alias(

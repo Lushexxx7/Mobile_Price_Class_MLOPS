@@ -4,10 +4,15 @@ from typing import Any
 
 import mlflow
 import mlflow.sklearn
+import matplotlib
 import pandas as pd
 import yaml
 from mlflow import MlflowClient
 from mlflow.models import infer_signature
+from sklearn.metrics import ConfusionMatrixDisplay
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from src.config import PARAMS, PROJECT_ROOT
 from src.models.evaluate import EvaluadorModelo
@@ -84,6 +89,14 @@ class RastreadorMLflow:
                 },
                 "diagnosticos/clasificacion.json",
             )
+            figura, eje = plt.subplots(figsize=(6, 5))
+            ConfusionMatrixDisplay(
+                confusion_matrix=diagnostico["matriz_confusion"]
+            ).plot(ax=eje, colorbar=False)
+            eje.set_title(f"Matriz de confusión - {modelo.nombre}")
+            figura.tight_layout()
+            mlflow.log_figure(figura, "graficas/matriz_confusion.png")
+            plt.close(figura)
             ejemplo_entrada = x_validacion.astype("float64")
             firma = infer_signature(ejemplo_entrada, predicciones)
             model_info = mlflow.sklearn.log_model(
@@ -98,6 +111,39 @@ class RastreadorMLflow:
                 "metricas": metricas,
                 "modelo": modelo.nombre,
             }
+
+    @staticmethod
+    def registrar_resumen(
+        registros: list[dict[str, Any]], nombre: str
+    ) -> pd.DataFrame:
+        filas = []
+        for registro in registros:
+            fila = {"modelo": registro["modelo"], **registro["metricas"]}
+            fila.update(
+                {
+                    f"param_{clave}": valor
+                    for clave, valor in registro.get("parametros", {}).items()
+                }
+            )
+            filas.append(fila)
+        tabla = pd.DataFrame(filas)
+        mlflow.log_table(tabla, artifact_file=f"resumen/{nombre}.json")
+
+        metricas = [
+            metrica
+            for metrica in ("accuracy", "precision", "recall", "f1")
+            if metrica in tabla.columns
+        ]
+        figura, eje = plt.subplots(figsize=(10, 6))
+        tabla.set_index("modelo")[metricas].plot(kind="bar", ax=eje)
+        eje.set_ylim(0, 1)
+        eje.set_ylabel("Valor")
+        eje.set_title("Comparación de métricas")
+        eje.tick_params(axis="x", rotation=25)
+        figura.tight_layout()
+        mlflow.log_figure(figura, f"graficas/{nombre}.png")
+        plt.close(figura)
+        return tabla
 
     def registrar_y_asignar_alias(
         self, model_uri: str, alias: str, tags: dict[str, str] | None = None

@@ -32,6 +32,7 @@ def main() -> None:
                 )
             )
         mejor = max(registros, key=lambda item: item["metricas"][metrica])
+        rastreador.registrar_resumen(registros, "comparacion_modelos")
         mlflow.log_metric(f"best_{metrica}", mejor["metricas"][metrica])
         mlflow.log_param("best_child_run_id", mejor["run_id"])
         version = rastreador.registrar_y_asignar_alias(
