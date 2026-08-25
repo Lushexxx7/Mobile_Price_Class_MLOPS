@@ -1,0 +1,154 @@
+schema: '2.0'
+stages:
+  validate:
+    cmd: python -m scripts.validate_data
+    deps:
+    - path: data/raw/test.csv
+      hash: md5
+      md5: 818344cb7fbf6f3dc80e4720d9bd84b7
+      size: 62849
+    - path: data/raw/train.csv
+      hash: md5
+      md5: e8c4560161dc3c8571b5b2db25be3294
+      size: 122403
+    - path: scripts/validate_data.py
+      hash: md5
+      md5: 50b982f357b4aa31acae0f87a8165715
+      size: 1031
+    - path: src/config.py
+      hash: md5
+      md5: f3a93c864e1f170d90e796057ecf72b0
+      size: 832
+    params:
+      params.yaml:
+        data.target: price_range
+    outs:
+    - path: reports/data_validation.json
+      hash: md5
+      md5: 45bdf27fdbe3df8991812da1fb31cc6e
+      size: 200
+  train:
+    cmd: python main.py
+    deps:
+    - path: data/raw/train.csv
+      hash: md5
+      md5: e8c4560161dc3c8571b5b2db25be3294
+      size: 122403
+    - path: main.py
+      hash: md5
+      md5: 1324aa16a6e98632f904dc6173f94e95
+      size: 2004
+    - path: src
+      hash: md5
+      md5: e44eabf2a50b72028c2220f854bd2f59.dir
+      size: 18003
+      nfiles: 13
+    params:
+      params.yaml:
+        data:
+          target: price_range
+          test_size: 0.2
+          random_state: 42
+        logistic_regression:
+          max_iter: 2000
+        mlflow:
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: telefonos_price_classification
+          registered_model_name: TelefonosPriceClassifier
+        random_forest:
+          n_estimators: 300
+          max_depth:
+          n_jobs: -1
+        selection:
+          metric: accuracy
+        svm:
+          kernel: rbf
+          C: 10.0
+          gamma: scale
+    outs:
+    - path: models/modelo_final.pkl
+      hash: md5
+      md5: 312fdfe35d1eb2e741678ae6d947a061
+      size: 3473
+    - path: reports/metrics.json
+      hash: md5
+      md5: f4b55ce978eba5349b9cf4fae840e7c3
+      size: 560
+  predict:
+    cmd: python -m scripts.predict
+    deps:
+    - path: data/raw/test.csv
+      hash: md5
+      md5: 818344cb7fbf6f3dc80e4720d9bd84b7
+      size: 62849
+    - path: models/modelo_final.pkl
+      hash: md5
+      md5: 312fdfe35d1eb2e741678ae6d947a061
+      size: 3473
+    - path: scripts/predict.py
+      hash: md5
+      md5: 81c1549e28b96944894da5143b43072e
+      size: 574
+    outs:
+    - path: data/processed/predicciones.csv
+      hash: md5
+      md5: f8f07414ae214c4f63cc87fb8f4a5f9d
+      size: 6909
+  tune:
+    cmd: python -m scripts.tune_hyperparameters
+    deps:
+    - path: data/raw/train.csv
+      hash: md5
+      md5: e8c4560161dc3c8571b5b2db25be3294
+      size: 122403
+    - path: scripts/tune_hyperparameters.py
+      hash: md5
+      md5: 5cf82d7fa6941691b9d7a2e2d521f5b4
+      size: 3115
+    - path: src
+      hash: md5
+      md5: e44eabf2a50b72028c2220f854bd2f59.dir
+      size: 18003
+      nfiles: 13
+    params:
+      params.yaml:
+        data:
+          target: price_range
+          test_size: 0.2
+          random_state: 42
+        hyperparameter_search:
+          logistic_regression:
+            C:
+            - 0.1
+            - 10.0
+          random_forest:
+            trials:
+            - n_estimators: 200
+              max_depth:
+            - n_estimators: 300
+              max_depth: 20
+          svm:
+            C:
+            - 1.0
+            - 10.0
+        logistic_regression:
+          max_iter: 2000
+        mlflow:
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: telefonos_price_classification
+          registered_model_name: TelefonosPriceClassifier
+        random_forest:
+          n_estimators: 300
+          max_depth:
+          n_jobs: -1
+        selection:
+          metric: accuracy
+        svm:
+          kernel: rbf
+          C: 10.0
+          gamma: scale
+    outs:
+    - path: reports/hyperparameter_search.json
+      hash: md5
+      md5: 4a65910590518d3032f0dc6574fe46f5
+      size: 272

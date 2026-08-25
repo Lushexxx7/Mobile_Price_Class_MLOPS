@@ -1,4 +1,8 @@
+import json
+from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 from sklearn.metrics import (
     accuracy_score,
@@ -31,3 +35,21 @@ class EvaluadorModelo:
                 y_real, y_pred, output_dict=True, zero_division=0
             ),
         }
+
+    @staticmethod
+    def guardar_comparacion(resultados: pd.DataFrame, ruta: str | Path, metrica: str) -> Path:
+        destino = Path(ruta)
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        contenido = {
+            "metrica_seleccion": metrica,
+            "mejor_modelo": str(resultados.iloc[0]["modelo"]),
+            "modelos": {
+                str(fila["modelo"]): {
+                    nombre: float(fila[nombre])
+                    for nombre in ("accuracy", "precision", "recall", "f1")
+                }
+                for _, fila in resultados.iterrows()
+            },
+        }
+        destino.write_text(json.dumps(contenido, ensure_ascii=False, indent=2), encoding="utf-8")
+        return destino

@@ -1,0 +1,14 @@
+{
+  "train": {
+    "filas": 2000,
+    "columnas": 21,
+    "nulos": 0,
+    "duplicados": 0
+  },
+  "test": {
+    "filas": 1000,
+    "columnas": 21,
+    "nulos": 0,
+    "duplicados": 0
+  }
+}

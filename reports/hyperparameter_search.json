@@ -1,0 +1,11 @@
+{
+  "metrica_seleccion": "accuracy",
+  "mejor_modelo": "Regresión Logística",
+  "mejor_valor": 0.975,
+  "mejores_parametros": {
+    "C": 10.0
+  },
+  "mlflow_run_id": "ab988973a7a04c71804016e96b215d81",
+  "mlflow_model_version": "6",
+  "total_experimentos": 6
+}

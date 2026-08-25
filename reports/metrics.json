@@ -1,0 +1,24 @@
+{
+  "metrica_seleccion": "accuracy",
+  "mejor_modelo": "Regresión Logística",
+  "modelos": {
+    "Regresión Logística": {
+      "accuracy": 0.965,
+      "precision": 0.9650445632798573,
+      "recall": 0.965,
+      "f1": 0.9649863177272501
+    },
+    "SVM": {
+      "accuracy": 0.89,
+      "precision": 0.8903477565801691,
+      "recall": 0.89,
+      "f1": 0.8898991799372845
+    },
+    "Random Forest": {
+      "accuracy": 0.88,
+      "precision": 0.8804702799211492,
+      "recall": 0.88,
+      "f1": 0.8801800303033377
+    }
+  }
+}

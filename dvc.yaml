@@ -1,0 +1,56 @@
+stages:
+  validate:
+    cmd: python -m scripts.validate_data
+    deps:
+      - data/raw/train.csv
+      - data/raw/test.csv
+      - scripts/validate_data.py
+      - src/config.py
+    params:
+      - data.target
+    outs:
+      - reports/data_validation.json:
+          cache: false
+  train:
+    cmd: python main.py
+    deps:
+      - data/raw/train.csv
+      - main.py
+      - src
+    params:
+      - data
+      - logistic_regression
+      - random_forest
+      - svm
+      - selection
+      - mlflow
+    outs:
+      - models/modelo_final.pkl
+    metrics:
+      - reports/metrics.json:
+          cache: false
+  predict:
+    cmd: python -m scripts.predict
+    deps:
+      - data/raw/test.csv
+      - models/modelo_final.pkl
+      - scripts/predict.py
+    outs:
+      - data/processed/predicciones.csv
+  tune:
+    cmd: python -m scripts.tune_hyperparameters
+    deps:
+      - data/raw/train.csv
+      - scripts/tune_hyperparameters.py
+      - src
+    params:
+      - data
+      - logistic_regression
+      - random_forest
+      - svm
+      - selection
+      - mlflow
+      - hyperparameter_search
+    metrics:
+      - reports/hyperparameter_search.json:
+          cache: false

@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-from src.config import RANDOM_STATE
+from src.config import PARAMS, RANDOM_STATE
 
 
 class ModeloClasificacion(ABC):
@@ -34,12 +34,13 @@ class ModeloClasificacion(ABC):
 class ModeloRegresionLogistica(ModeloClasificacion):
 
     def __init__(self, random_state: int = RANDOM_STATE):
+        parametros = PARAMS["logistic_regression"]
         modelo = Pipeline(
             [
                 ("scaler", StandardScaler()),
                 (
                     "classifier",
-                    LogisticRegression(max_iter=2000, random_state=random_state),
+                    LogisticRegression(max_iter=int(parametros["max_iter"]), random_state=random_state),
                 ),
             ]
         )
@@ -49,10 +50,12 @@ class ModeloRegresionLogistica(ModeloClasificacion):
 class ModeloRandomForest(ModeloClasificacion):
 
     def __init__(self, random_state: int = RANDOM_STATE):
+        parametros = PARAMS["random_forest"]
         modelo = RandomForestClassifier(
-            n_estimators=300,
+            n_estimators=int(parametros["n_estimators"]),
+            max_depth=parametros["max_depth"],
             random_state=random_state,
-            n_jobs=-1,
+            n_jobs=int(parametros["n_jobs"]),
         )
         super().__init__("Random Forest", modelo)
 
@@ -66,15 +69,16 @@ class ModeloRandomForest(ModeloClasificacion):
 class ModeloSVM(ModeloClasificacion):
 
     def __init__(self, random_state: int = RANDOM_STATE):
+        parametros = PARAMS["svm"]
         modelo = Pipeline(
             [
                 ("scaler", StandardScaler()),
                 (
                     "classifier",
                     SVC(
-                        kernel="rbf",
-                        C=10.0,
-                        gamma="scale",
+                        kernel=str(parametros["kernel"]),
+                        C=float(parametros["C"]),
+                        gamma=str(parametros["gamma"]),
                         random_state=random_state,
                     ),
                 ),
