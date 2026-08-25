@@ -1,3 +1,13 @@
+# Data (versionado con DVC, no con Git)
+/data/raw/*.csv
+/data/processed/*.csv
+!/data/raw/.gitkeep
+
+# DVC
+.dvc/cache
+.dvc/tmp
+.dvc/config.local
+
 # Mac OS-specific storage files
 .DS_Store
 
@@ -182,9 +192,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Editores / SO
+# Editores / vs.code / SO 
 .vscode/
-.DS_Store
 Thumbs.db
 
 # Ruff stuff:
@@ -192,8 +201,6 @@ Thumbs.db
 
 # PyPI configuration file
 .pypirc
-
-# MLflow local
 mlflow.db
 mlruns/
 mlartifacts/
