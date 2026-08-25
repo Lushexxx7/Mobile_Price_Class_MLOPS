@@ -413,10 +413,21 @@ git push
     │
     ├── features.py             <- Code to create features for modeling
     │
-    ├── modeling          
+    ├── modeling        
     │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models    
+    │   ├── predict.py          <- Code to run model inference with trained models  
     │   └── train.py            <- Code to train models
     │
     └── plots.py                <- Code to create visualizations
+```
+
+
+## Autenticación de la API
+
+El endpoint `/predict` acepta una API key opcional por cabecera. Se activa
+definiendo la variable de entorno `API_KEY`:
+
+```powershell
+$env:API_KEY = "tu-clave"
+uvicorn src.api.app:app --port 8000
 ```

@@ -45,3 +45,9 @@ def test_campo_desconocido_es_rechazado(cliente):
 def test_flag_fuera_de_rango_es_rechazado(cliente):
     respuesta = cliente.post("/predict", json={"data": [{**TELEFONO, "blue": 9}]})
     assert respuesta.status_code == 422
+
+def test_api_key_bloquea_peticion_sin_cabecera(cliente, monkeypatch):
+    """Con API_KEY definida, /predict exige la cabecera X-API-Key."""
+    monkeypatch.setattr("src.api.security.API_KEY", "clave-de-prueba")
+    respuesta = cliente.post("/predict", json={"data": [TELEFONO]})
+    assert respuesta.status_code == 401

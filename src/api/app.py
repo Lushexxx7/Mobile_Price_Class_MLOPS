@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 from src.api.model_loader import (
     MODEL_NAME,
@@ -20,6 +20,7 @@ from src.api.schemas import (
     RespuestaPrediccion,
     ResultadoPrediccion,
 )
+from src.api.security import verificar_api_key
 from src.data.preprocessing import PreprocesadorTelefonos
 
 _estado: dict[str, Any] = {"modelo": None}
@@ -64,7 +65,11 @@ def salud():
     return {"status": "ready", "version": obtener_metadatos()["version"]}
 
 
-@app.post("/predict", response_model=RespuestaPrediccion)
+@app.post(
+    "/predict",
+    response_model=RespuestaPrediccion,
+    dependencies=[Depends(verificar_api_key)],
+)
 def predecir(peticion: PeticionPrediccion) -> RespuestaPrediccion:
     modelo = _estado["modelo"]
     if modelo is None:
