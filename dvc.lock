@@ -57,7 +57,7 @@ stages:
       size: 152
     - path: models/modelo_final.pkl
       hash: md5
-      md5: a094fe9944737873264a0bd96d886d4b
+      md5: ab9e61ee355eccd98666b9069e70f2f7
       size: 3473
     - path: plots/comparacion_modelos.csv
       hash: md5
@@ -80,7 +80,7 @@ stages:
       size: 62849
     - path: models/modelo_final.pkl
       hash: md5
-      md5: a094fe9944737873264a0bd96d886d4b
+      md5: ab9e61ee355eccd98666b9069e70f2f7
       size: 3473
     - path: src/config.py
       hash: md5
