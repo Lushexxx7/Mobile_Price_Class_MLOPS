@@ -32,7 +32,7 @@ def main() -> None:
 
     # ------------------------------------------------ salidas versionadas por DVC
     METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(METRICS_PATH, "w", encoding="utf-8") as archivo:
+    with open(METRICS_PATH, "w", encoding="utf-8", newline="\n") as archivo:
         json.dump(
             {"modelo": nombre_ganador, **{m: float(ganador[m]) for m in _METRICAS}},
             archivo,
@@ -43,7 +43,7 @@ def main() -> None:
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
     # 1) Comparación de modelos (barras)
-    resultados.to_csv(COMPARACION_PLOT_PATH, index=False)
+    resultados.to_csv(COMPARACION_PLOT_PATH, index=False, lineterminator="\n")
 
     # 2) Matriz de confusión del modelo ganador
     pd.DataFrame(
@@ -51,7 +51,7 @@ def main() -> None:
             "real": pipeline.y_val.astype(str).to_numpy(),
             "prediccion": pipeline.predicciones[nombre_ganador].astype(str),
         }
-    ).to_csv(CONFUSION_PLOT_PATH, index=False)
+    ).to_csv(CONFUSION_PLOT_PATH, index=False, lineterminator="\n")
 
     # 3) Importancia de variables del Random Forest
     random_forest = next(
@@ -63,7 +63,7 @@ def main() -> None:
             "importancia": random_forest.obtener_importancias(),
         }
     ).sort_values("importancia", ascending=False).to_csv(
-        IMPORTANCIAS_PLOT_PATH, index=False
+        IMPORTANCIAS_PLOT_PATH, index=False, lineterminator="\n"
     )
 
     # ------------------------------------------------------- tracking en MLflow
