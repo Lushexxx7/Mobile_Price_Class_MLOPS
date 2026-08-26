@@ -8,4 +8,23 @@
 *.json text eol=lf
 *.ipynb text eol=lf
 *.csv text eol=lf
+
+# Ficheros que se consumen dentro de contenedores Linux: con CRLF, make falla
+# al parsear las recetas y el shell no encuentra los intérpretes (`\r` en el
+# shebang). Se fuerza LF aunque el clon sea en Windows.
+Makefile text eol=lf
+*.mk text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+.dockerignore text eol=lf
+.env.example text eol=lf
+
+# Metadatos de DVC: los consumen tanto Windows como los contenedores.
+*.dvc text eol=lf
+/dvc.lock text eol=lf
+/.dvcignore text eol=lf
+
 *.pkl binary

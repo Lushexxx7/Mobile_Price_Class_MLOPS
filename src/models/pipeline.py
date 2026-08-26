@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from typing import Any
 
 import joblib
@@ -22,7 +22,7 @@ class PipelineTelefonos:
     ):
         metricas_validas = {"accuracy", "precision", "recall", "f1"}
         if metrica_seleccion not in metricas_validas:
-            raise ValueError(f"MÃ©trica no vÃ¡lida: {metrica_seleccion}")
+            raise ValueError(f"Métrica no válida: {metrica_seleccion}")
         self.modelos = modelos or crear_modelos(random_state)
         self.metrica_seleccion = metrica_seleccion
         self.preprocesador = PreprocesadorTelefonos(

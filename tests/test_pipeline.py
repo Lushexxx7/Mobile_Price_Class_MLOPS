@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 
 from src.models.train import ModeloRegresionLogistica
 from src.models.pipeline import PipelineTelefonos
