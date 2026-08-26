@@ -42,13 +42,26 @@ class RastreadorMLflow:
 
     @staticmethod
     def _comando_git(*args: str) -> str:
-        resultado = subprocess.run(
-            ["git", *args],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        """Linaje de Git, en el mejor de los casos.
+
+        El OSError no es defensivo de mas: la imagen de entrenamiento no lleva
+        git instalado ni el directorio .git, asi que subprocess lanza
+        FileNotFoundError al no encontrar el binario. Con `check=False` solo se
+        cubria el caso de que git existiera y devolviera error, y entrenar
+        dentro del contenedor reventaba antes de registrar nada. El commit es
+        un metadato util, no un requisito para entrenar.
+        """
+        try:
+            resultado = subprocess.run(
+                ["git", *args],
+                cwd=PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except OSError:
+            return "no-disponible"
+
         return resultado.stdout.strip() or "no-disponible"
 
     @staticmethod

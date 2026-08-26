@@ -1,0 +1,74 @@
+# Stack MLOps: tracking, entrenamiento y serving.
+#
+# Flujo tipico:
+#   docker compose up -d                    -> levanta mlflow y la api
+#   docker compose run --rm trainer         -> entrena y promueve el campeon
+#   docker compose restart api              -> la api recarga desde el Registry
+#
+# La api arranca aunque todavia no haya modelo: cae al artefacto local y
+# /health responde 503 hasta que lo haya. Nunca entra en bucle de reinicios.
+
+name: mobile-price-mlops
+
+services:
+
+  # ------------------------------------------------ tracking + Model Registry
+  mlflow:
+    build:
+      context: .
+      dockerfile: docker/mlflow.Dockerfile
+    image: mobile-price-mlflow:dev
+    container_name: mlops-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      # Base limpia dentro del volumen. El historial local del host no se toca:
+      # sus artefactos apuntan a rutas C:/Users/... que aqui no existirian.
+      - mlflow_db:/mlflow
+      - mlflow_artifacts:/mlartifacts
+    restart: unless-stopped
+
+  # ------------------------------------------------------------ entrenamiento
+  # No arranca con `up`. Se invoca a demanda: docker compose run --rm trainer
+  trainer:
+    build:
+      context: .
+      dockerfile: docker/train.Dockerfile
+    image: mobile-price-trainer:dev
+    environment:
+      # Gana sobre params.yaml gracias al override por entorno de src/config.py
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      # Las salidas se escriben en el host para que DVC las siga versionando.
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    profiles: ["tools"]
+
+  # ------------------------------------------------------------------ serving
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    image: mobile-price-api:dev
+    container_name: mlops-api
+    ports:
+      - "8000:8000"
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      # Vacia = autenticacion desactivada. Se define en .env
+      API_KEY: ${API_KEY:-}
+    volumes:
+      # Solo lectura: la api sirve el modelo, nunca lo escribe.
+      - ./models:/app/models:ro
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mlflow_db:
+  mlflow_artifacts:
