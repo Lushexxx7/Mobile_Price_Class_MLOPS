@@ -1,0 +1,10 @@
+# Dependencias de la API de inferencia.
+#
+# Hereda el pipeline completo porque la API no solo sirve HTTP: reconstruye el
+# modelo, y para eso necesita las mismas versiones de scikit-learn y joblib con
+# las que se entreno. Encima solo anade el servidor web.
+-r requirements-train.txt
+
+fastapi==0.141.1
+pydantic==2.13.4
+uvicorn==0.52.4
