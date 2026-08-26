@@ -1,5 +1,8 @@
-# Data
-/data/
+# Data: los archivos reales los gestiona DVC; los punteros .dvc sí van a Git
+/data/**
+!/data/**/
+!/data/**/*.dvc
+!/data/**/.gitignore
 reports/*.pkl
 reports/*.csv
 

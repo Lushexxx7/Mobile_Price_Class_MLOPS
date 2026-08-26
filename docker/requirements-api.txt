@@ -1,0 +1,5 @@
+# Dependencias de la API de inferencia: el pipeline completo mas el servidor HTTP.
+-r requirements-train.txt
+
+fastapi==0.141.1
+uvicorn==0.52.4

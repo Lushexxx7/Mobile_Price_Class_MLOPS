@@ -11,7 +11,7 @@ def main() -> None:
 
     resultado = pd.DataFrame({"id": datos["id"], "price_range": predicciones})
     PREDICTIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    resultado.to_csv(PREDICTIONS_PATH, index=False)
+    resultado.to_csv(PREDICTIONS_PATH, index=False, lineterminator="\n")
 
     print(f"Predicciones generadas: {len(resultado)}")
     print(f"Guardadas en: {PREDICTIONS_PATH}")

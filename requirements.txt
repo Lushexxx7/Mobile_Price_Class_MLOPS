@@ -67,9 +67,9 @@ nbformat==5.11.1
 nest-asyncio2==1.7.2
 notebook==7.6.2
 notebook_shim==0.2.4
-numpy==2.5.2
+numpy==2.4.6
 packaging==26.3
-pandas==3.0.5
+pandas==2.3.3
 pandocfilters==1.5.1
 parso==0.8.7
 pillow==12.3.0
@@ -86,7 +86,6 @@ pyparsing==3.3.2
 pytest==9.1.1
 python-dateutil==2.9.0.post0
 python-json-logger==4.2.0
-pywinpty==3.0.5
 PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.37.0
@@ -96,9 +95,10 @@ rfc3986-validator==0.1.1
 rfc3987-syntax==1.1.0
 rpds-py==2026.6.3
 scikit-learn==1.9.0
-scipy==1.18.0
+scipy==1.17.1
 Send2Trash==2.1.0
 six==1.17.0
+skops==0.14.0
 soupsieve==2.9.2
 stack-data==0.6.3
 starlette==1.6.0

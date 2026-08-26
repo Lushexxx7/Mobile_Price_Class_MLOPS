@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import yaml
@@ -32,7 +33,9 @@ MLFLOW_ALIAS_PRODUCCION = MLFLOW.get("alias_produccion", "champion")
 
 # La URI relativa se ancla a la raíz del proyecto para que funcione igual
 # ejecutando `python main.py`, `dvc repro` o pytest desde cualquier carpeta.
-_URI = MLFLOW.get("tracking_uri", "sqlite:///mlflow.db")
+# MLFLOW_TRACKING_URI (entorno) tiene prioridad sobre params.yaml: permite
+# apuntar a un servidor de tracking remoto sin editar el repo.
+_URI = os.getenv("MLFLOW_TRACKING_URI") or MLFLOW.get("tracking_uri", "sqlite:///mlflow.db")
 if _URI.startswith("sqlite:///") and not Path(_URI.replace("sqlite:///", "")).is_absolute():
     MLFLOW_TRACKING_URI = f"sqlite:///{(PROJECT_ROOT / 'mlflow.db').as_posix()}"
 else:

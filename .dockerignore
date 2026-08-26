@@ -1,0 +1,46 @@
+# Contexto de build: sin esto son ~1.2 GB (.venv pesa 1.1 GB y mlruns 105 MB).
+
+# Entornos virtuales y caches de Python
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Historial de Git y caches de DVC
+.git/
+.github/
+.dvc/cache/
+.dvc/tmp/
+
+# SECRETOS: nunca deben acabar dentro de una imagen.
+# .dvc/config.local guarda el client_id y client_secret de Google Drive.
+.dvc/config.local
+.env
+
+# MLflow local: artefactos con rutas absolutas de Windows, inservibles en Linux.
+# El stack usa su propio volumen con una base limpia.
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Datos y artefactos: entran por bind-mount en tiempo de ejecucion, no horneados
+# en la imagen. Asi la imagen no caduca cuando se reentrena.
+data/
+models/
+metrics/
+plots/
+dvc_plots/
+reports/
+
+# Material que no interviene en el runtime de los contenedores
+notebooks/
+docs/
+references/
+tests/
+*.md
+LICENSE
+Makefile
