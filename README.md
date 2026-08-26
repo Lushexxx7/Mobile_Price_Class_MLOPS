@@ -27,12 +27,14 @@ con `random_state=42`. Los parámetros se administran desde `params.yaml`.
 
 ```text
 data/                 Datos raw, interim, external y processed
+docker/               Dockerfiles y requirements de cada imagen
 docs/                 Documentación de arquitectura
 models/               Modelo final administrado por DVC
 notebooks/            EDA, entrenamiento y predicción
 references/           Documentación del dataset
 reports/              Métricas, validaciones y figuras
 scripts/              Validación, predicción y búsqueda de hiperparámetros
+src/api/              API de inferencia (FastAPI)
 src/data/             Carga y preprocesamiento
 src/features/         Construcción de características
 src/models/           Modelos, evaluación, pipeline y tracking
@@ -119,6 +121,98 @@ Abrir `http://127.0.0.1:5000` y seleccionar **Entrenamiento de modelos**. La
 base `mlflow.db`, `mlruns/` y `mlartifacts/` son locales y están ignorados por
 Git.
 
+La variable de entorno `MLFLOW_TRACKING_URI` tiene prioridad sobre
+`params.yaml`, lo que permite apuntar a un servidor de tracking sin editar el
+repositorio. Ver `.env.example`.
+
+## API de inferencia
+
+Sirve el modelo con alias `champion` del Model Registry. Si el Registry no está
+disponible, cae al artefacto local `models/modelo_final.pkl`, de modo que la
+API nunca queda inutilizable.
+
+Levantar en local:
+
+```powershell
+uvicorn src.api.app:app --reload --port 8000
+```
+
+Endpoints:
+
+| Método | Ruta       | Descripción                                                      |
+| ------ | ---------- | ---------------------------------------------------------------- |
+| `GET`  | `/`        | Estado, modelo servido y features esperadas                       |
+| `GET`  | `/health`  | Readiness: 200 si hay modelo cargado, 503 mientras no lo haya     |
+| `POST` | `/predict` | Predice el rango de precio de uno o varios teléfonos              |
+| `GET`  | `/docs`    | Documentación interactiva que genera FastAPI                      |
+
+`/health` es lo que consulta el `HEALTHCHECK` del contenedor, y por eso
+distingue entre *el proceso responde* y *el modelo está listo*.
+
+Ejemplo de petición, con el payload incluido en el repositorio:
+
+```powershell
+curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d "@tests/payload_ejemplo.json"
+```
+
+La respuesta trae, por cada fila, el código `price_range` (0 a 3), su etiqueta
+legible, la confianza y el detalle de probabilidades por clase.
+
+### Autenticación
+
+`/predict` admite autenticación opcional por API key. Se activa definiendo
+`API_KEY` en `.env`; ausente o vacía, queda desactivada, que es lo cómodo en
+local y en las pruebas. Con la clave definida hay que enviar la cabecera:
+
+```powershell
+curl -X POST http://localhost:8000/predict -H "X-API-Key: TU_CLAVE" -H "Content-Type: application/json" -d "@tests/payload_ejemplo.json"
+```
+
+## Docker
+
+El stack levanta tres servicios: `mlflow` (tracking y Model Registry), `api`
+(inferencia) y `trainer`, que no arranca con `up` porque se invoca a demanda.
+
+```powershell
+docker compose build
+docker compose up -d
+```
+
+Con eso quedan disponibles la API en `http://localhost:8000` y MLflow en
+`http://localhost:5000`. La API arranca aunque todavía no haya modelo: cae al
+artefacto local y `/health` responde 503 hasta que lo haya, sin entrar en bucle
+de reinicios.
+
+Entrenar dentro del contenedor y recargar la API con el nuevo campeón:
+
+```powershell
+docker compose run --rm trainer
+docker compose restart api
+```
+
+El `trainer` escribe el modelo y las métricas en el host mediante bind-mount,
+así que DVC los sigue versionando desde fuera del contenedor. Como el pipeline
+fuerza LF en todas sus salidas, los hashes que produce Linux coinciden con los
+de Windows y `dvc status` sigue limpio tras entrenar en Docker.
+
+Otros comandos:
+
+```powershell
+docker compose run --rm trainer python -m scripts.predict
+docker compose ps
+docker compose logs -f
+docker compose down
+```
+
+El equivalente en `make`: `docker-build`, `docker-up`, `docker-train`,
+`docker-predict`, `docker-ps`, `docker-logs`, `docker-down` y `docker-clean`.
+Este último borra también los volúmenes, es decir el historial de MLflow del
+stack.
+
+MLflow corre dentro del contenedor sobre su propio volumen, con una base
+limpia. El historial local del host no se reutiliza a propósito: sus artefactos
+apuntan a rutas `C:/Users/...` que no existen en un contenedor Linux.
+
 ## Ejecución
 
 Flujo reproducible completo:
@@ -147,9 +241,21 @@ Notebooks, en orden:
 pytest
 ```
 
+La suite pasa en un clon recién hecho, sin `dvc pull` y sin haber entrenado
+nada: las pruebas de la API inyectan un modelo doble y las que dependen de los
+CSV se saltan solas con un mensaje que explica qué falta. Para exigir estas
+últimas, una vez descargados los datos:
+
+```powershell
+pytest -m datos
+```
+
 ## Seguridad
 
-- No subir `.dvc/config.local`, credenciales OAuth ni secretos.
+- No subir `.dvc/config.local`, `.env`, credenciales OAuth ni secretos. Los
+  tres están en `.gitignore` y excluidos del contexto de build de Docker.
 - No agregar directamente a Git los CSV, modelos, `mlflow.db` o artefactos.
 - Actualizar los datos con `dvc add`, confirmar el puntero `.dvc` en Git y
   ejecutar `dvc push`.
+- La `API_KEY` se define en `.env`, nunca en `docker-compose.yml` ni en
+  `params.yaml`.
