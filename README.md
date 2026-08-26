@@ -431,3 +431,129 @@ definiendo la variable de entorno `API_KEY`:
 $env:API_KEY = "tu-clave"
 uvicorn src.api.app:app --port 8000
 ```
+
+## Ejecución con Docker
+
+El proyecto se levanta completo en contenedores: servidor de MLflow,
+entrenamiento y API de inferencia.
+
+| Servicio  | Definición                  | Puerto | Función                                  |
+| --------- | --------------------------- | -----: | ---------------------------------------- |
+| `mlflow`  | `docker/mlflow.Dockerfile`  |   5000 | Tracking y Model Registry                |
+| `trainer` | `docker/train.Dockerfile`   |      — | Ejecuta el pipeline; se invoca a demanda |
+| `api`     | `docker/api.Dockerfile`     |   8000 | Sirve el modelo campeón por HTTP         |
+
+### Puesta en marcha
+
+Requisito: Docker Desktop en marcha.
+
+1. Crear el fichero de variables de entorno a partir de la plantilla:
+
+```bash
+cp .env.example .env
+```
+
+Editar `.env` y poner una `API_KEY`. Si se deja vacía, `/predict` queda sin
+autenticación.
+
+2. Recuperar los datos. No viajan dentro de la imagen: el contenedor de
+   entrenamiento los recibe por volumen desde `data/`.
+
+```bash
+dvc pull
+```
+
+3. Construir las imágenes y levantar el stack:
+
+```bash
+docker compose build && docker compose build trainer
+```
+
+```bash
+docker compose up -d
+```
+
+Con esto quedan en marcha `mlflow` en el puerto 5000 y `api` en el 8000. La
+API arranca aunque todavía no exista ningún modelo: cae al artefacto local de
+DVC y, si tampoco lo hay, `/health` responde 503 sin que el contenedor entre
+en un bucle de reinicios.
+
+4. Entrenar dentro del contenedor y recargar la API:
+
+```bash
+docker compose run --rm trainer
+```
+
+```bash
+docker compose restart api
+```
+
+El entrenamiento registra los tres modelos candidatos en MLflow, promueve al
+ganador con el alias `@champion` y escribe el artefacto, las métricas y los
+plots en las carpetas del host.
+
+### Comprobación
+
+```bash
+curl -s localhost:8000/
+```
+
+La respuesta debe incluir `"origen": "registry@champion"`. Si en su lugar
+aparece `"origen": "artefacto_local"`, la API no encontró el modelo en el
+Registry y está sirviendo el respaldo: revisar que el paso 4 terminó bien y
+reiniciar la API.
+
+Para predecir:
+
+```bash
+curl -s -X POST localhost:8000/predict -H "Content-Type: application/json" -H "X-API-Key: TU_CLAVE" -d @tests/payload_ejemplo.json
+```
+
+La interfaz de MLflow queda en `http://localhost:5000`.
+
+### Otros comandos
+
+```bash
+docker compose run --rm trainer python -m src.models.predict_batch
+```
+
+```bash
+docker compose logs -f
+```
+
+```bash
+docker compose down
+```
+
+Si además se quieren borrar los volúmenes, es decir el historial de MLflow del
+stack:
+
+```bash
+docker compose down -v
+```
+
+El `Makefile` recoge estos mismos comandos como atajos (`docker-build`,
+`docker-up`, `docker-train`, `docker-down`, `docker-clean`) para quien tenga
+`make` instalado.
+
+### Notas de diseño
+
+**El modelo no se hornea en la imagen.** Llega en tiempo de ejecución desde el
+Model Registry o, como respaldo, desde `models/modelo_final.pkl` montado como
+volumen. Así reentrenar no obliga a reconstruir la imagen.
+
+**El stack usa su propia base de MLflow.** El historial local de `mlflow.db`
+guarda rutas absolutas del estilo `file:///C:/Users/...` que no existen dentro
+de un contenedor Linux, de modo que sus modelos no se pueden cargar desde ahí.
+El servidor del stack arranca con `--serve-artifacts`, que entrega URIs
+portables `mlflow-artifacts:/`, y guarda todo en volúmenes propios. El
+historial de la máquina local no se toca ni se borra.
+
+**Entrenar en Windows y en Linux no da un artefacto idéntico.** Las métricas,
+los plots y el `eval.json` sí coinciden byte a byte, pero los coeficientes del
+modelo difieren en torno a 5e-15 porque las ruedas de numpy para cada
+plataforma traen versiones distintas de BLAS. El modelo es equivalente y las
+predicciones son las mismas, pero `dvc status` marcará `modelo_final.pkl` como
+modificado si se entrena alternando plataforma. Conviene fijar un entorno de
+entrenamiento canónico y usar siempre ese para generar el `dvc.lock` que se
+commitea.

@@ -18,3 +18,9 @@ Dockerfile text eol=lf
 .dockerignore text eol=lf
 *.sh text eol=lf
 docker-compose*.yml text eol=lf
+
+# Los ficheros .env los lee docker compose: con CRLF, el valor de cada
+# variable arrastraria un retorno de carro al final.
+.env text eol=lf
+.env.* text eol=lf
+*.env text eol=lf
