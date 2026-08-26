@@ -17,3 +17,10 @@ include = ["src*"]
 pythonpath = ["."]
 addopts = "-p no:cacheprovider"
 testpaths = ["tests"]
+# Las pruebas marcadas con `datos` necesitan los CSV que administra DVC. Se
+# saltan solas si no estan, para que la suite corra en un clon recien hecho
+# y dentro de la imagen, donde no hay credenciales de Google Drive.
+# Para exigirlas: pytest -m datos
+markers = [
+    "datos: requiere los ficheros de data/raw (ejecutar `dvc pull` antes)",
+]

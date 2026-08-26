@@ -34,6 +34,11 @@ def test_archivo_inexistente(tmp_path):
         cargador.cargar()
 
 
+@pytest.mark.datos
+@pytest.mark.skipif(
+    not TRAIN_PATH.is_file(),
+    reason="data/raw/train.csv lo administra DVC; ejecuta `dvc pull` para incluir esta prueba.",
+)
 def test_dataset_de_entrenamiento_del_proyecto():
     datos = CargadorDatos(TRAIN_PATH).cargar()
 
