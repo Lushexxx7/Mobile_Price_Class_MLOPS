@@ -1,6 +1,12 @@
 import mlflow
 
-from src.config import METRICS_PATH, MODEL_PATH, PARAMS, TRAIN_PATH
+from src.config import (
+    METRICS_PATH,
+    MLFLOW_ALIAS_PRODUCCION,
+    MODEL_PATH,
+    PARAMS,
+    TRAIN_PATH,
+)
 from src.data.load_data import CargadorDatos
 from src.models.evaluate import EvaluadorModelo
 from src.models.pipeline import PipelineTelefonos
@@ -37,7 +43,7 @@ def main() -> None:
         mlflow.log_param("best_child_run_id", mejor["run_id"])
         version = rastreador.registrar_y_asignar_alias(
             mejor["model_uri"],
-            "champion",
+            MLFLOW_ALIAS_PRODUCCION,
             {"tipo": "baseline", "parent_run_id": parent.info.run_id},
         )
 
@@ -45,7 +51,7 @@ def main() -> None:
     print(f"\nMejor modelo: {pipeline.mejor_modelo.nombre}")
     print(f"Artefacto guardado en: {MODEL_PATH}")
     print(f"Métricas guardadas en: {METRICS_PATH}")
-    print(f"MLflow: versión {version} registrada con alias champion")
+    print(f"MLflow: versión {version} registrada con alias {MLFLOW_ALIAS_PRODUCCION}")
 
 
 if __name__ == "__main__":

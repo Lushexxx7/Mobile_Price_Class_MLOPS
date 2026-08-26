@@ -17,12 +17,16 @@ import mlflow
 import mlflow.sklearn
 from mlflow import MlflowClient
 
-from src.config import MODEL_PATH, PARAMS
+from src.config import (
+    MLFLOW_ALIAS_PRODUCCION,
+    MLFLOW_REGISTERED_MODEL_NAME,
+    MLFLOW_TRACKING_URI,
+    MODEL_PATH,
+)
 from src.models.pipeline import PipelineTelefonos
 
-MLFLOW_CONFIG = PARAMS["mlflow"]
-MODEL_NAME = str(MLFLOW_CONFIG["registered_model_name"])
-MODEL_ALIAS = "champion"
+MODEL_NAME = MLFLOW_REGISTERED_MODEL_NAME
+MODEL_ALIAS = MLFLOW_ALIAS_PRODUCCION
 
 # Columnas esperadas por el modelo, en el orden con el que se entrenó
 # (ver data/raw/train.csv; price_range es la variable objetivo, no entra aquí).
@@ -53,7 +57,7 @@ FEATURE_COLUMNS = [
 def load_model() -> ClassifierMixin | None:
     """Carga el modelo con alias @champion; si falla, usa el .pkl local."""
     try:
-        mlflow.set_tracking_uri(str(MLFLOW_CONFIG["tracking_uri"]))
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         return mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@{MODEL_ALIAS}")
     except Exception as error:  # noqa: BLE001 - degradamos sin tumbar la API
         print(f"[model_loader] No se pudo cargar desde MLflow Registry: {error}")
@@ -69,7 +73,7 @@ def load_model() -> ClassifierMixin | None:
 def get_model_metadata() -> dict[str, str]:
     """Devuelve versión y run_id de la versión con alias @champion."""
     try:
-        mlflow.set_tracking_uri(str(MLFLOW_CONFIG["tracking_uri"]))
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         client = MlflowClient()
         version = client.get_model_version_by_alias(MODEL_NAME, MODEL_ALIAS)
         return {"version": version.version, "run_id": version.run_id}

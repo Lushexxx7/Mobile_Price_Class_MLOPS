@@ -1,7 +1,7 @@
 import json
 import mlflow
 
-from src.config import PARAMS, PROJECT_ROOT, TRAIN_PATH
+from src.config import MLFLOW_ALIAS_CHALLENGER, PARAMS, PROJECT_ROOT, TRAIN_PATH
 from src.data.load_data import CargadorDatos
 from src.data.preprocessing import PreprocesadorTelefonos
 from src.models.evaluate import EvaluadorModelo
@@ -61,7 +61,7 @@ def main() -> None:
         mlflow.log_param("best_child_run_id", mejor["run_id"])
         version = rastreador.registrar_y_asignar_alias(
             mejor["model_uri"],
-            "challenger",
+            MLFLOW_ALIAS_CHALLENGER,
             {"tipo": "hyperparameter_search", "parent_run_id": parent.info.run_id},
         )
     resumen = {

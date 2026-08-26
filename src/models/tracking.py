@@ -14,17 +14,28 @@ from sklearn.metrics import ConfusionMatrixDisplay
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from src.config import PARAMS, PROJECT_ROOT
+from src.config import (
+    MLFLOW_EXPERIMENT_NAME,
+    MLFLOW_REGISTERED_MODEL_NAME,
+    MLFLOW_TRACKING_URI,
+    PARAMS,
+    PROJECT_ROOT,
+)
 from src.models.evaluate import EvaluadorModelo
 from src.models.train import ModeloClasificacion
 
 
 class RastreadorMLflow:
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: dict | None = None, tracking_uri: str | None = None):
         self.config = config or PARAMS["mlflow"]
-        self.tracking_uri = str(self.config["tracking_uri"])
-        self.experiment_name = str(self.config["experiment_name"])
-        self.registered_model_name = str(self.config["registered_model_name"])
+        # Por defecto la URI viene de src.config, que ya aplico el override de
+        # MLFLOW_TRACKING_URI y anclo las rutas sqlite relativas a la raiz del
+        # proyecto. Leerla de params.yaml aqui romperia ambas cosas.
+        self.tracking_uri = tracking_uri or MLFLOW_TRACKING_URI
+        self.experiment_name = str(self.config.get("experiment_name", MLFLOW_EXPERIMENT_NAME))
+        self.registered_model_name = str(
+            self.config.get("registered_model_name", MLFLOW_REGISTERED_MODEL_NAME)
+        )
         mlflow.set_tracking_uri(self.tracking_uri)
         mlflow.set_experiment(self.experiment_name)
         self.client = MlflowClient(tracking_uri=self.tracking_uri)
