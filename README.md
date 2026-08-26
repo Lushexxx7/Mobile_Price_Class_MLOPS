@@ -10,7 +10,64 @@
 Proyecto MLOps para clasificar teléfonos en cuatro rangos de precio
 (`price_range`: 0, 1, 2 o 3) a partir de 20 características técnicas. Integra
 una arquitectura orientada a objetos, pruebas automatizadas, DVC para datos y
-artefactos, y MLflow para experimentos y registro de modelos.
+artefactos, MLflow para experimentos y registro de modelos, una API de
+inferencia sobre FastAPI y un stack de contenedores que une las tres piezas.
+
+## Arquitectura
+
+Del dato crudo al contenedor en producción:
+
+```mermaid
+flowchart TD
+    subgraph datos["Datos versionados"]
+        drive[("Google Drive<br/>remoto DVC")] -->|dvc pull| raw["data/raw<br/>train.csv · test.csv"]
+    end
+
+    subgraph pipe["Pipeline reproducible · dvc.yaml"]
+        val["validate"] --> tr["train<br/>main.py"]
+        val --> tun["tune"]
+        tr --> pred["predict"]
+    end
+
+    subgraph art["Artefactos que versiona DVC"]
+        met["reports/<br/>metrics.json"]
+        pkl["models/<br/>modelo_final.pkl"]
+        csv["data/processed/<br/>predicciones.csv"]
+    end
+
+    subgraph track["Experimentos y registro"]
+        mlf[("MLflow<br/>runs · métricas<br/>Model Registry")]
+    end
+
+    subgraph serve["Serving"]
+        api["FastAPI<br/>src/api/app.py"] --> ep["GET /health<br/>POST /predict"]
+    end
+
+    subgraph cont["Contenedores · docker compose"]
+        c1["mlflow :5000<br/>tracking + Registry"]
+        c2["trainer<br/>ejecuta el pipeline"]
+        c3["api :8000<br/>sirve el modelo"]
+    end
+
+    raw --> val
+    tr --> met
+    tr --> pkl
+    pred --> csv
+    tr -->|"alias @champion"| mlf
+    tun -->|"alias @challenger"| mlf
+    mlf -->|"models:/...@champion"| api
+    pkl -.->|"respaldo"| api
+    ep -->|"despliegue"| cont
+```
+
+Git conserva el código y los punteros `.dvc`; Google Drive, los datos y
+artefactos. El modelo nunca se hornea en las imágenes: la API lo pide al Model
+Registry por alias, de modo que sirve siempre el último promovido sin necesidad
+de reconstruir ni desplegar nada.
+
+El bloque de contenedores no es una etapa más del flujo, sino el mismo flujo
+empaquetado: `mlflow` cubre el tracking y el registro, `trainer` ejecuta el
+pipeline y `api` sirve el modelo. Los tres se describen en `docker-compose.yml`.
 
 ## Modelos
 
