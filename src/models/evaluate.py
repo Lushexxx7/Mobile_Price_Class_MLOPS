@@ -51,5 +51,13 @@ class EvaluadorModelo:
                 for _, fila in resultados.iterrows()
             },
         }
-        destino.write_text(json.dumps(contenido, ensure_ascii=False, indent=2), encoding="utf-8")
+        # newline="\n" explicito: en Windows write_text traduce a CRLF, y como
+        # DVC hashea los bytes del fichero, la misma etapa producia un hash en
+        # Windows y otro en Linux. El pipeline se daba por obsoleto solo por
+        # cambiar de maquina.
+        destino.write_text(
+            json.dumps(contenido, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+            newline="\n",
+        )
         return destino

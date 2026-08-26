@@ -74,7 +74,10 @@ def main() -> None:
         "total_experimentos": len(resultados),
     }
     destino = PROJECT_ROOT / "reports" / "hyperparameter_search.json"
-    destino.write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
+    # newline="\n": ver nota en scripts/validate_data.py sobre los hashes de DVC.
+    destino.write_text(
+        json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
+    )
 
 
 if __name__ == "__main__":

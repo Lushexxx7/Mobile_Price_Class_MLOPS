@@ -11,7 +11,10 @@ def main() -> None:
     if "id" in datos.columns:
         salida.insert(0, "id", datos["id"].to_numpy())
     PREDICTIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    salida.to_csv(PREDICTIONS_PATH, index=False)
+    # lineterminator="\n": to_csv usa CRLF en Windows por defecto, y ese CSV es
+    # una salida cacheada por DVC. Sin fijarlo, entrenar en Windows y en el
+    # contenedor daba hashes distintos para predicciones identicas.
+    salida.to_csv(PREDICTIONS_PATH, index=False, lineterminator="\n")
 
 
 if __name__ == "__main__":
