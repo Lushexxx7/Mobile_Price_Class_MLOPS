@@ -6,3 +6,16 @@
 mlflow.db
 mlruns/
 mlartifacts/
+
+# Bytecode y cachés de herramientas. Importan porque las etapas del pipeline
+# declaran directorios como dependencia: sin esto, un __pycache__ recién
+# generado cambiaba el hash de src/ y DVC daba el entrenamiento por obsoleto
+# aunque no se hubiera tocado una sola línea de código.
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Entorno local: no forma parte de ninguna etapa.
+.env
