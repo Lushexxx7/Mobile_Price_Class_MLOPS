@@ -9,3 +9,12 @@
 *.ipynb text eol=lf
 *.csv text eol=lf
 *.pkl binary
+
+# Ficheros que Linux consume dentro de los contenedores: siempre LF.
+# Un script con CRLF falla con "bad interpreter" y un Dockerfile con CRLF
+# rompe las continuaciones de linea en los RUN.
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+.dockerignore text eol=lf
+*.sh text eol=lf
+docker-compose*.yml text eol=lf
