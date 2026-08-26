@@ -1,0 +1,12 @@
+# Dependencias del pipeline de entrenamiento (servicios trainer y base de api).
+# Pineadas a las mismas versiones del entorno local: el .pkl se serializa con
+# joblib y el modelo del Registry con skops, y ambos formatos son sensibles a
+# la version de scikit-learn con la que se escribieron.
+joblib==1.5.3
+mlflow==3.15.1
+numpy==2.4.6
+pandas==2.3.3
+PyYAML==6.0.3
+scikit-learn==1.9.0
+scipy==1.17.1
+skops==0.14.0
