@@ -495,6 +495,19 @@ Entrena **dentro** del contenedor. Es el paso interesante para explicar:
 - Escribe `models/`, `reports/` y `data/` en tu disco, montados como volumen,
   para que DVC los siga versionando desde fuera.
 
+> **Ojo con `dvc status` despues de este paso.** Las salidas de texto
+> (`reports/*.json`, `data/processed/*.csv`) salen identicas byte a byte a las
+> que produce Windows, porque el pipeline fuerza LF. El `.pkl` no: joblib no
+> serializa igual en Linux y en Windows, asi que sale con el mismo tamano y las
+> mismas metricas pero distinto hash, y `dvc status` marca `train` y `predict`
+> como modificados. Es comportamiento de pickle entre plataformas, no un fallo
+> del stack. Si no quieres versionar el modelo entrenado en el contenedor,
+> descarta el cambio con:
+>
+> ```powershell
+> dvc checkout --force models/modelo_final.pkl
+> ```
+
 ```powershell
 docker compose restart api
 ```

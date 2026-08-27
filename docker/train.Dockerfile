@@ -3,10 +3,18 @@
 # Pipeline de entrenamiento.
 #
 # Escribe el modelo y las metricas en directorios montados desde el host, de
-# modo que DVC los sigue versionando desde fuera del contenedor. Como el
-# pipeline fuerza LF en todas sus salidas, los md5 que produce aqui coinciden
-# con los que produce Windows: `dvc status` sigue limpio tras entrenar en
-# Docker, sin reproducciones espurias.
+# modo que DVC los sigue versionando desde fuera del contenedor.
+#
+# El pipeline fuerza LF en todas sus salidas, asi que las de texto
+# (reports/*.json y data/processed/*.csv) salen identicas byte a byte a las
+# que produce Windows: ahi no hay reproducciones espurias.
+#
+# El .pkl es otra historia. joblib/pickle no serializa igual byte a byte en
+# Linux y en Windows -- mismo tamano, mismas metricas, hash distinto -- asi
+# que tras entrenar en Docker `dvc status` marca `train` y `predict` como
+# modificados aunque el modelo sea equivalente. No es un fallo de este
+# Dockerfile ni de la configuracion: es como se comporta pickle entre
+# plataformas. Para descartar el cambio: `dvc checkout models/modelo_final.pkl`.
 
 # ------------------------------------------------------------ etapa: dependencias
 FROM python:3.11-slim AS deps
