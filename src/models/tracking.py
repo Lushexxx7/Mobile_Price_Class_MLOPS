@@ -1,3 +1,5 @@
+"""Registro de experimentos y promocion de modelos en MLflow."""
+
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -26,7 +28,22 @@ from src.models.train import ModeloClasificacion
 
 
 class RastreadorMLflow:
+    """Envuelve MLflow: loguea las corridas y promueve el ganador por alias.
+
+    Todo el tracking pasa por aqui para que main.py y la busqueda de
+    hiperparametros registren exactamente los mismos campos.
+
+    :param config: seccion `mlflow` de params.yaml; si es None la lee sola
+    :param tracking_uri: URI del servidor; si es None usa la de src.config
+    :ivar client: cliente de MLflow contra ese mismo URI
+    :ivar experiment_name: experimento donde caen las corridas
+    :ivar registered_model_name: nombre del modelo en el Registry
+    """
+
     def __init__(self, config: dict | None = None, tracking_uri: str | None = None):
+        """:param config: seccion `mlflow` de params.yaml, None para leerla sola
+        :param tracking_uri: URI del servidor, None para la de src.config
+        """
         self.config = config or PARAMS["mlflow"]
         # Por defecto la URI viene de src.config, que ya aplico el override de
         # MLFLOW_TRACKING_URI y anclo las rutas sqlite relativas a la raiz del
@@ -50,6 +67,9 @@ class RastreadorMLflow:
         cubria el caso de que git existiera y devolviera error, y entrenar
         dentro del contenedor reventaba antes de registrar nada. El commit es
         un metadato util, no un requisito para entrenar.
+
+        :param args: argumentos que se le pasan a git
+        :return: la salida del comando, o "no-disponible" si git no responde
         """
         try:
             resultado = subprocess.run(
@@ -66,6 +86,11 @@ class RastreadorMLflow:
 
     @staticmethod
     def _hash_dvc(ruta: Path) -> str:
+        """Lee el md5 que DVC guarda dentro de un fichero puntero .dvc.
+
+        :param ruta: fichero .dvc a leer
+        :return: el md5 del dataset, o "no-disponible" si no se puede leer
+        """
         if not ruta.is_file():
             return "no-disponible"
         contenido = yaml.safe_load(ruta.read_text(encoding="utf-8")) or {}
@@ -73,6 +98,13 @@ class RastreadorMLflow:
         return str(salidas[0].get("md5", "no-disponible")) if salidas else "no-disponible"
 
     def linaje(self) -> dict[str, str]:
+        """Reune de donde sale esta corrida: codigo y version de los datos.
+
+        Es lo que permite atar una metrica concreta a un commit y a una version
+        del dataset meses despues.
+
+        :return: un dict de tags con el commit, la rama y los hashes DVC
+        """
         return {
             "git_commit": self._comando_git("rev-parse", "--short", "HEAD"),
             "git_branch": self._comando_git("branch", "--show-current"),
@@ -82,6 +114,14 @@ class RastreadorMLflow:
 
     @staticmethod
     def parametros_modelo(modelo: ModeloClasificacion) -> dict[str, Any]:
+        """Extrae los parametros del estimador en un formato que MLflow acepta.
+
+        Convierte a texto lo que no sea escalar, porque log_params solo admite
+        tipos simples, y descarta el ruido interno del Pipeline.
+
+        :param modelo: modelo del que se leen los parametros
+        :return: un dict apto para mlflow.log_params
+        """
         permitidos = (str, int, float, bool)
         return {
             clave: valor if isinstance(valor, permitidos) or valor is None else str(valor)
@@ -99,6 +139,17 @@ class RastreadorMLflow:
         parametros: dict[str, Any] | None = None,
         nested: bool = True,
     ) -> dict[str, Any]:
+        """Loguea una corrida completa: metricas, graficas y el modelo.
+
+        :param modelo: modelo ya entrenado
+        :param x_validacion: predictoras de validacion
+        :param y_validacion: objetivo de validacion
+        :param evaluador: quien calcula las metricas
+        :param run_name: nombre con el que aparece la corrida en MLflow
+        :param parametros: parametros a loguear; si es None los saca del modelo
+        :param nested: True para colgarla de la corrida padre en curso
+        :return: un dict con run_id, model_uri, metricas y nombre del modelo
+        """
         predicciones = modelo.predecir(x_validacion)
         metricas = evaluador.evaluar(y_validacion, predicciones)
         diagnostico = evaluador.diagnostico(y_validacion, predicciones)
@@ -138,6 +189,12 @@ class RastreadorMLflow:
 
     @staticmethod
     def registrar_resumen(registros: list[dict[str, Any]], nombre: str) -> pd.DataFrame:
+        """Loguea en la corrida padre la tabla y la grafica comparativa.
+
+        :param registros: lo que devolvio registrar_modelo por cada corrida hija
+        :param nombre: nombre base de los artefactos que se generan
+        :return: la tabla comparativa que se ha logueado
+        """
         filas = []
         for registro in registros:
             fila = {"modelo": registro["modelo"], **registro["metricas"]}
@@ -167,6 +224,16 @@ class RastreadorMLflow:
     def registrar_y_asignar_alias(
         self, model_uri: str, alias: str, tags: dict[str, str] | None = None
     ) -> str:
+        """Registra el modelo y le pone el alias de produccion o de challenger.
+
+        Se usa alias y no numero de version a proposito: la API pide siempre
+        `@champion`, asi que promover un modelo nuevo no obliga a tocar codigo.
+
+        :param model_uri: URI del modelo logueado en la corrida
+        :param alias: alias a asignar, por ejemplo champion o challenger
+        :param tags: etiquetas extra para esa version
+        :return: el numero de version que ha creado el Registry
+        """
         version = mlflow.register_model(model_uri, self.registered_model_name)
         self.client.set_registered_model_alias(self.registered_model_name, alias, version.version)
         for clave, valor in (tags or {}).items():

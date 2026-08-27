@@ -1,3 +1,5 @@
+"""Rutas del proyecto y parametros leidos de params.yaml."""
+
 import os
 from pathlib import Path
 
@@ -10,6 +12,11 @@ PARAMS_PATH = PROJECT_ROOT / "params.yaml"
 
 
 def cargar_parametros(ruta: Path = PARAMS_PATH) -> dict:
+    """Lee params.yaml y lo devuelve como dict.
+
+    :param ruta: fichero YAML a leer
+    :return: los parametros, o un dict vacio si el fichero esta vacio
+    """
     with ruta.open(encoding="utf-8") as archivo:
         return yaml.safe_load(archivo) or {}
 
@@ -44,6 +51,8 @@ MLFLOW_ALIAS_CHALLENGER = str(_MLFLOW.get("alias_challenger", "challenger"))
 
 def _resolver_tracking_uri() -> str:
     """URI de MLflow, con el entorno por encima de params.yaml.
+
+    :return: la URI ya resuelta, con las rutas sqlite ancladas a la raiz
 
     Dos motivos para no leer `params.yaml` a secas:
 

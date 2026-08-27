@@ -13,16 +13,16 @@ stages:
       size: 122403
     - path: scripts/validate_data.py
       hash: md5
-      md5: 1a31110805253fd015b6013524f49aec
-      size: 1307
+      md5: 04c30a84d61dd79812fb4833feb5c81a
+      size: 1684
     - path: src/config.py
       hash: md5
-      md5: 147e8281fa673e7b96694e64d28b078e
-      size: 2648
+      md5: 29034fd235246ae46bc3aa24a5a4edac
+      size: 2948
     - path: src/data/load_data.py
       hash: md5
-      md5: 1d83780afb17ac77d899312eba02836f
-      size: 881
+      md5: 4aaa4a793eaf84da53c0bbfba0f4b90f
+      size: 2101
     params:
       params.yaml:
         data.target: price_range
@@ -40,26 +40,26 @@ stages:
       size: 122403
     - path: main.py
       hash: md5
-      md5: b77e5a7cca4eb8209039a53eb3c01236
-      size: 2155
+      md5: bad34f3467af09d3df1fda932736506c
+      size: 2439
     - path: src/config.py
       hash: md5
-      md5: 147e8281fa673e7b96694e64d28b078e
-      size: 2648
+      md5: 29034fd235246ae46bc3aa24a5a4edac
+      size: 2948
     - path: src/data
       hash: md5
-      md5: bf754655a8e70dbdc6a9c81c85a027f9.dir
-      size: 2542
+      md5: 11b50e4e2bda4815e4b1e133e7ae1b73.dir
+      size: 5951
       nfiles: 3
     - path: src/features
       hash: md5
-      md5: b6680e4b55548edaebeea4266ed3a293.dir
-      size: 562
+      md5: 9632cd7896b13051f305737e1d0b0f39.dir
+      size: 892
       nfiles: 2
     - path: src/models
       hash: md5
-      md5: 3bdf619db053d1a5540861d497302a9b.dir
-      size: 16968
+      md5: c4d385a309acd6c9f081e7dcf991219d.dir
+      size: 25768
       nfiles: 6
     params:
       params.yaml:
@@ -107,16 +107,16 @@ stages:
       size: 3473
     - path: scripts/predict.py
       hash: md5
-      md5: adcedd0a8e6e7753e4cae8820e130366
-      size: 819
+      md5: b16274d05fbf8fa31ba8f440c578a596
+      size: 957
     - path: src/data/preprocessing.py
       hash: md5
-      md5: 44231f68458e8f8c88b79187d432eb84
-      size: 1465
+      md5: fcb4d0890a762e3e7e003489ec771da2
+      size: 3654
     - path: src/models/pipeline.py
       hash: md5
-      md5: 191a851cb54a3aeb49901be4545590f3
-      size: 4076
+      md5: babcba0ba3ef6d24ebeb2fce55fd5ead
+      size: 6492
     outs:
     - path: data/processed/predicciones.csv
       hash: md5
@@ -131,21 +131,21 @@ stages:
       size: 122403
     - path: scripts/tune_hyperparameters.py
       hash: md5
-      md5: b4554362de47e78db7c76f781761ea67
-      size: 3316
+      md5: 257c09d14c7fb5085461354cd632a29f
+      size: 3876
     - path: src/config.py
       hash: md5
-      md5: 147e8281fa673e7b96694e64d28b078e
-      size: 2648
+      md5: 29034fd235246ae46bc3aa24a5a4edac
+      size: 2948
     - path: src/data
       hash: md5
-      md5: bf754655a8e70dbdc6a9c81c85a027f9.dir
-      size: 2542
+      md5: 11b50e4e2bda4815e4b1e133e7ae1b73.dir
+      size: 5951
       nfiles: 3
     - path: src/models
       hash: md5
-      md5: 3bdf619db053d1a5540861d497302a9b.dir
-      size: 16968
+      md5: c4d385a309acd6c9f081e7dcf991219d.dir
+      size: 25768
       nfiles: 6
     params:
       params.yaml:
@@ -189,5 +189,5 @@ stages:
     outs:
     - path: reports/hyperparameter_search.json
       hash: md5
-      md5: c39d8bdc9e603de44a3222b2b4df3475
-      size: 262
+      md5: 500b94df84f3ce4cf7662e2dbb95aa04
+      size: 263

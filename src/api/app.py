@@ -39,6 +39,8 @@ async def ciclo_vida(app: FastAPI):
     """Carga el modelo una sola vez, al arrancar el proceso.
 
     Reemplaza a `@app.on_event("startup")`, que FastAPI marca como obsoleto.
+
+    :param app: la aplicacion que esta arrancando
     """
     _estado["modelo"] = load_model()
     metadatos = get_model_metadata()
@@ -71,6 +73,12 @@ app = FastAPI(
 
 @app.get("/")
 def raiz() -> dict[str, Any]:
+    """Estado del servicio y que modelo esta sirviendo.
+
+    Responde 200 aunque no haya modelo: para saber si esta listo, /health.
+
+    :return: estado, nombre y alias del modelo, su origen y las features
+    """
     return {
         "status": "online",
         "model_name": MODEL_NAME,
@@ -87,6 +95,9 @@ def salud() -> dict[str, str]:
     Existe porque `GET /` respondía 200 incluso sin modelo cargado, así que no
     servía para el HEALTHCHECK del contenedor ni para que otros servicios
     esperaran a que la API estuviera realmente lista.
+
+    :return: el estado, el origen del modelo y su version
+    :raises HTTPException: 503 mientras no haya modelo cargado
     """
     if _estado["modelo"] is None:
         raise HTTPException(status_code=503, detail="Modelo no disponible.")
@@ -101,6 +112,13 @@ def salud() -> dict[str, str]:
     dependencies=[Depends(verificar_api_key)],
 )
 def predecir(peticion: PeticionPrediccion) -> RespuestaPrediccion:
+    """Predice el rango de precio de uno o varios telefonos.
+
+    :param peticion: lote con las 20 caracteristicas de cada telefono
+    :return: una prediccion por fila, con etiqueta y probabilidades
+    :raises HTTPException: 503 sin modelo, 422 si la entrada no vale, 500 si
+        falla la inferencia
+    """
     modelo = _estado["modelo"]
     if modelo is None:
         # 503 y no 500: el servicio está sano, lo que falta es el modelo. Un

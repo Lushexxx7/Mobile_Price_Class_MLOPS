@@ -1,3 +1,5 @@
+"""Orquestacion del entrenamiento: compara modelos, elige y persiste."""
+
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,22 @@ from src.data.preprocessing import PreprocesadorTelefonos
 
 
 class PipelineTelefonos:
+    """Entrena varios modelos, se queda con el mejor y lo guarda.
+
+    Es la pieza que ata las demas: preprocesador, modelos y evaluador. El
+    artefacto que escribe lleva tambien las columnas de entrenamiento, para que
+    la inferencia pueda reordenar la entrada sin adivinar.
+
+    :param modelos: modelos a comparar; si es None usa los tres por defecto
+    :param metrica_seleccion: metrica con la que se elige al ganador
+    :param target: nombre de la variable objetivo
+    :param test_size: proporcion reservada a validacion
+    :param random_state: semilla de la division y de los modelos
+    :ivar mejor_modelo: el ganador, o None mientras no se entrene
+    :ivar columnas: columnas de entrenamiento, en orden
+    :ivar resultados: tabla de metricas ordenada por `metrica_seleccion`
+    """
+
     def __init__(
         self,
         modelos: list[ModeloClasificacion] | None = None,
@@ -20,6 +38,13 @@ class PipelineTelefonos:
         test_size: float = TEST_SIZE,
         random_state: int = RANDOM_STATE,
     ):
+        """:param modelos: modelos a comparar, None para los tres por defecto
+        :param metrica_seleccion: accuracy, precision, recall o f1
+        :param target: nombre de la variable objetivo
+        :param test_size: proporcion reservada a validacion
+        :param random_state: semilla
+        :raises ValueError: si la metrica no es una de las cuatro validas
+        """
         metricas_validas = {"accuracy", "precision", "recall", "f1"}
         if metrica_seleccion not in metricas_validas:
             raise ValueError(f"Métrica no válida: {metrica_seleccion}")
@@ -36,6 +61,11 @@ class PipelineTelefonos:
         self.resultados: pd.DataFrame | None = None
 
     def entrenar(self, datos: pd.DataFrame) -> pd.DataFrame:
+        """Entrena todos los modelos y ordena los resultados.
+
+        :param datos: dataset completo, con la columna objetivo
+        :return: tabla de metricas, el ganador en la primera fila
+        """
         x, y = self.preprocesador.separar_variables(datos)
         x_train, x_val, y_train, y_val = self.preprocesador.dividir_datos(x, y)
         self.columnas = x.columns.tolist()
@@ -59,6 +89,12 @@ class PipelineTelefonos:
         return self.resultados.copy()
 
     def guardar(self, ruta: str | Path = MODEL_PATH) -> Path:
+        """Serializa el modelo ganador junto con su metadato.
+
+        :param ruta: destino del .pkl
+        :return: la ruta escrita
+        :raises RuntimeError: si todavia no se ha entrenado
+        """
         if self.mejor_modelo is None or self.resultados is None:
             raise RuntimeError("Primero debes entrenar el pipeline.")
         destino = Path(ruta)
@@ -76,6 +112,13 @@ class PipelineTelefonos:
 
     @staticmethod
     def cargar(ruta: str | Path = MODEL_PATH) -> dict[str, Any]:
+        """Lee un artefacto de disco y comprueba que tenga lo que hace falta.
+
+        :param ruta: fichero .pkl a leer
+        :return: el dict con modelo, nombre, columnas y target
+        :raises FileNotFoundError: si el fichero no existe
+        :raises ValueError: si el .pkl no tiene el formato esperado
+        """
         origen = Path(ruta)
         if not origen.is_file():
             raise FileNotFoundError(f"No existe el modelo: {origen}")
@@ -87,6 +130,12 @@ class PipelineTelefonos:
 
     @classmethod
     def predecir(cls, datos: pd.DataFrame, ruta: str | Path = MODEL_PATH):
+        """Predice con un artefacto guardado, sin necesidad de reentrenar.
+
+        :param datos: filas a predecir, pueden traer columnas de mas
+        :param ruta: artefacto .pkl a usar
+        :return: la clase predicha para cada fila
+        """
         artefacto = cls.cargar(ruta)
         x = PreprocesadorTelefonos.preparar_inferencia(datos, artefacto["columnas"])
         return artefacto["modelo"].predict(x)
@@ -95,7 +144,12 @@ class PipelineTelefonos:
     def entrenar_desde_csv(
         cls, ruta_datos: str | Path, ruta_modelo: str | Path = MODEL_PATH
     ) -> tuple["PipelineTelefonos", pd.DataFrame]:
-        """Ejecuta el flujo completo a partir de un CSV."""
+        """Ejecuta el flujo completo a partir de un CSV.
+
+        :param ruta_datos: CSV de entrenamiento
+        :param ruta_modelo: destino del artefacto
+        :return: la tupla (pipeline entrenado, tabla de resultados)
+        """
         datos = CargadorDatos(ruta_datos).cargar()
         pipeline = cls()
         resultados = pipeline.entrenar(datos)

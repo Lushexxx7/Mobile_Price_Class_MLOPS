@@ -1,3 +1,5 @@
+"""Entrenamiento base: compara los tres modelos y promueve el ganador."""
+
 import mlflow
 
 from src.config import (
@@ -14,6 +16,11 @@ from src.models.tracking import RastreadorMLflow
 
 
 def main() -> None:
+    """Entrena, guarda el .pkl y las metricas, y registra todo en MLflow.
+
+    Es la etapa `train` del pipeline de DVC. Deja al ganador con el alias de
+    produccion, que es el que luego pide la API.
+    """
     datos = CargadorDatos(TRAIN_PATH).cargar()
     metrica = str(PARAMS["selection"]["metric"])
     pipeline = PipelineTelefonos(metrica_seleccion=metrica)

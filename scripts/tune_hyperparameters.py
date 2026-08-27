@@ -1,3 +1,5 @@
+"""Busqueda de hiperparametros: seis ensayos logueados en MLflow."""
+
 import json
 import mlflow
 
@@ -14,6 +16,13 @@ from src.models.train import (
 
 
 def candidatos():
+    """Genera los seis modelos a probar, dos por familia.
+
+    Las combinaciones salen de `params.yaml`, no del codigo, para poder ampliar
+    la busqueda sin tocar este fichero.
+
+    :return: un generador de tuplas (modelo sin entrenar, sus parametros)
+    """
     busqueda = PARAMS["hyperparameter_search"]
     for c in busqueda["logistic_regression"]["C"]:
         modelo = ModeloRegresionLogistica()
@@ -32,6 +41,11 @@ def candidatos():
 
 
 def main() -> None:
+    """Prueba los seis candidatos y promueve al mejor como challenger.
+
+    Es la etapa `tune` del pipeline. No toca el alias de produccion: deja al
+    ganador como challenger para poder compararlo antes de promoverlo.
+    """
     datos = CargadorDatos(TRAIN_PATH).cargar()
     preprocesador = PreprocesadorTelefonos()
     x, y = preprocesador.separar_variables(datos)

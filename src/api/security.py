@@ -25,6 +25,8 @@ def revisar_configuracion() -> str | None:
     No corrige nada ni aborta el arranque: solo describe el problema para que
     salga en el log. Un 401 sin contexto es carisimo de diagnosticar; este
     aviso convierte media hora de curl a ciegas en una linea leible.
+
+    :return: el texto del aviso, o None si la clave no tiene mala pinta
     """
     if not API_KEY:
         return None
@@ -50,6 +52,9 @@ def verificar_api_key(clave: str | None = Security(_cabecera)) -> None:
 
     `compare_digest` compara en tiempo constante: evita que alguien deduzca la
     clave caracter a caracter midiendo cuanto tarda el rechazo.
+
+    :param clave: valor de la cabecera X-API-Key, o None si no vino
+    :raises HTTPException: 401 si hay clave configurada y no coincide
     """
     if not API_KEY:
         return

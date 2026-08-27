@@ -1,3 +1,5 @@
+"""Metricas de clasificacion y volcado de la comparacion a JSON."""
+
 import json
 from pathlib import Path
 from typing import Any
@@ -15,7 +17,19 @@ from sklearn.metrics import (
 
 
 class EvaluadorModelo:
+    """Calcula las metricas con las que se comparan los modelos.
+
+    Todas las medias son `weighted`, que es lo razonable en un problema de
+    cuatro clases: cada clase pesa segun cuantas filas tiene.
+    """
+
     def evaluar(self, y_real, y_pred) -> dict[str, float]:
+        """Calcula las cuatro metricas de comparacion.
+
+        :param y_real: etiquetas verdaderas
+        :param y_pred: etiquetas predichas por el modelo
+        :return: un dict con accuracy, precision, recall y f1
+        """
         return {
             "accuracy": float(accuracy_score(y_real, y_pred)),
             "precision": float(
@@ -26,6 +40,12 @@ class EvaluadorModelo:
         }
 
     def diagnostico(self, y_real, y_pred) -> dict[str, Any]:
+        """Detalle por clase, para mirar donde se equivoca el modelo.
+
+        :param y_real: etiquetas verdaderas
+        :param y_pred: etiquetas predichas por el modelo
+        :return: un dict con la matriz de confusion y el reporte por clase
+        """
         return {
             "matriz_confusion": confusion_matrix(y_real, y_pred),
             "reporte": classification_report(y_real, y_pred, output_dict=True, zero_division=0),
@@ -33,6 +53,13 @@ class EvaluadorModelo:
 
     @staticmethod
     def guardar_comparacion(resultados: pd.DataFrame, ruta: str | Path, metrica: str) -> Path:
+        """Escribe la tabla de comparacion como JSON, creando el directorio.
+
+        :param resultados: tabla ya ordenada, con el ganador en la primera fila
+        :param ruta: fichero de destino
+        :param metrica: metrica con la que se ordeno, se guarda como contexto
+        :return: la ruta escrita
+        """
         destino = Path(ruta)
         destino.parent.mkdir(parents=True, exist_ok=True)
         contenido = {

@@ -44,12 +44,27 @@ class CaracteristicasTelefono(BaseModel):
 
 
 class PeticionPrediccion(BaseModel):
+    """Lote de telefonos a predecir. Tiene que traer al menos uno.
+
+    :ivar data: las filas del lote
+    """
+
     # min_length=1: un lote vacio llegaba hasta el modelo y reventaba dentro de
     # sklearn con un error opaco. Ahora lo rechaza la validacion con un 422.
     data: list[CaracteristicasTelefono] = Field(..., min_length=1)
 
 
 class ResultadoPrediccion(BaseModel):
+    """Prediccion de una fila del lote.
+
+    :ivar index: posicion de la fila dentro del lote enviado
+    :ivar price_range: clase predicha, de 0 a 3
+    :ivar etiqueta: esa misma clase en texto legible
+    :ivar confianza: probabilidad de la clase ganadora, en porcentaje
+    :ivar probabilidades: probabilidad de cada clase, None si el modelo no
+        expone predict_proba
+    """
+
     index: int
     price_range: int
     etiqueta: str
@@ -58,6 +73,13 @@ class ResultadoPrediccion(BaseModel):
 
 
 class RespuestaPrediccion(BaseModel):
+    """Respuesta completa de /predict.
+
+    :ivar model_metadata: que modelo respondio y de donde salio
+    :ivar total: numero de filas predichas
+    :ivar results: una entrada por fila
+    """
+
     model_metadata: dict[str, str]
     total: int
     results: list[ResultadoPrediccion]

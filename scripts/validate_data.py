@@ -1,3 +1,5 @@
+"""Comprueba que train.csv y test.csv sirven antes de entrenar."""
+
 import json
 
 from src.config import TARGET, TEST_PATH, TRAIN_PATH, VALIDATION_PATH
@@ -5,6 +7,14 @@ from src.data.load_data import CargadorDatos
 
 
 def main() -> None:
+    """Valida ambos CSV y escribe el reporte que consume DVC.
+
+    Falla a proposito antes que el entrenamiento: es mucho mas barato detectar
+    aqui que falta una columna que descubrirlo a mitad del fit.
+
+    :raises ValueError: si falta el objetivo en train o hay columnas de menos
+        en test
+    """
     train = CargadorDatos(TRAIN_PATH).cargar()
     test = CargadorDatos(TEST_PATH).cargar()
     if TARGET not in train.columns:

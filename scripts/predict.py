@@ -1,3 +1,5 @@
+"""Genera las predicciones de test.csv con el modelo ya entrenado."""
+
 import pandas as pd
 
 from src.config import MODEL_PATH, PREDICTIONS_PATH, TEST_PATH
@@ -6,6 +8,7 @@ from src.models.pipeline import PipelineTelefonos
 
 
 def main() -> None:
+    """Predice sobre test.csv y guarda el CSV que versiona DVC."""
     datos = CargadorDatos(TEST_PATH).cargar()
     salida = pd.DataFrame({"price_range": PipelineTelefonos.predecir(datos, MODEL_PATH)})
     if "id" in datos.columns:

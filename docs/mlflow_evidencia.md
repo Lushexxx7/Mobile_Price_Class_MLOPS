@@ -22,7 +22,7 @@ mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 50
 | --- | --- |
 | Servidor de tracking | `sqlite:///mlflow.db` (anclado a la raiz del repo por `src/config.py`) |
 | Experimento | `telefonos_price_classification` (id `2`) |
-| Corridas totales registradas | **44** |
+| Corridas totales registradas | **55** |
 | Modelo registrado | `TelefonosPriceClassifier` |
 | Alias de produccion | `@champion` |
 | Alias de la busqueda | `@challenger` |
@@ -42,36 +42,40 @@ y un ejemplo de entrada, y el linaje: rama y commit de Git mas los hashes DVC
 de los datasets. Ese linaje es el que aparece en las tablas de abajo y el que
 permite atar una metrica concreta a un commit y a una version de los datos.
 
+Las tablas reflejan la ejecucion mas reciente del pipeline. Como cada `dvc repro`
+crea corridas y versiones nuevas, los identificadores cambian; lo que no cambia
+es la estructura ni las metricas, porque los datos y la semilla son los mismos.
+
 ## Corridas
 
-### Corrida padre `comparacion_modelos` — `f02dce6b`
+### Corrida padre `comparacion_modelos` — `ae2fe730`
 
 - Tipo: `baseline`
-- Linaje Git: commit `14a72b9`, rama `LuisS-integ-docker`
+- Linaje Git: commit `f463ae3`, rama `LuisS-integ-docker`
 - Linaje DVC: `train.csv` md5 `e8c4560161dc3c8571b5b2db25be3294`
 - Corridas hijas: 3
 
 | Corrida hija | run_id | accuracy | precision | recall | f1 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| `baseline_Regresión Logística` | `834acf9a` | 0.9650 | 0.9650 | 0.9650 | 0.9650 |
-| `baseline_Random Forest` | `f2a8fa0f` | 0.8800 | 0.8805 | 0.8800 | 0.8802 |
-| `baseline_SVM` | `fc548d50` | 0.8900 | 0.8903 | 0.8900 | 0.8899 |
+| `baseline_Regresión Logística` | `2d5b4171` | 0.9650 | 0.9650 | 0.9650 | 0.9650 |
+| `baseline_Random Forest` | `1b0ccbbd` | 0.8800 | 0.8805 | 0.8800 | 0.8802 |
+| `baseline_SVM` | `38a7489e` | 0.8900 | 0.8903 | 0.8900 | 0.8899 |
 
-### Corrida padre `busqueda_hiperparametros` — `1cfd28b9`
+### Corrida padre `busqueda_hiperparametros` — `0ffffa8e`
 
 - Tipo: `hyperparameter_search`
-- Linaje Git: commit `14a72b9`, rama `LuisS-integ-docker`
+- Linaje Git: commit `f463ae3`, rama `LuisS-integ-docker`
 - Linaje DVC: `train.csv` md5 `e8c4560161dc3c8571b5b2db25be3294`
 - Corridas hijas: 6
 
 | Corrida hija | run_id | accuracy | precision | recall | f1 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| `trial_1_Regresión Logística` | `ff3f434c` | 0.9225 | 0.9226 | 0.9225 | 0.9217 |
-| `trial_2_Regresión Logística` | `0e4c9f23` | 0.9750 | 0.9752 | 0.9750 | 0.9750 |
-| `trial_3_Random Forest` | `b024b284` | 0.8775 | 0.8776 | 0.8775 | 0.8774 |
-| `trial_4_Random Forest` | `01a17c71` | 0.8850 | 0.8851 | 0.8850 | 0.8850 |
-| `trial_5_SVM` | `dcde8daa` | 0.8950 | 0.8969 | 0.8950 | 0.8956 |
-| `trial_6_SVM` | `3f694a98` | 0.8900 | 0.8903 | 0.8900 | 0.8899 |
+| `trial_1_Regresión Logística` | `d1245653` | 0.9225 | 0.9226 | 0.9225 | 0.9217 |
+| `trial_2_Regresión Logística` | `a93b2495` | 0.9750 | 0.9752 | 0.9750 | 0.9750 |
+| `trial_3_Random Forest` | `1d191a3f` | 0.8775 | 0.8776 | 0.8775 | 0.8774 |
+| `trial_4_Random Forest` | `c20cd53c` | 0.8850 | 0.8851 | 0.8850 | 0.8850 |
+| `trial_5_SVM` | `ad0d872d` | 0.8950 | 0.8969 | 0.8950 | 0.8956 |
+| `trial_6_SVM` | `6bc7b8c0` | 0.8900 | 0.8903 | 0.8900 | 0.8899 |
 
 ![Comparacion de los modelos base](../reports/figures/mlflow_comparacion_modelos.png)
 
@@ -104,8 +108,10 @@ imagen.
 | 4 | — | `9ec63815` | hyperparameter_search |
 | 5 | — | `5eb81ddd` | baseline |
 | 6 | — | `095c6ec9` | hyperparameter_search |
-| 7 | `@champion` | `834acf9a` | baseline |
-| 8 | `@challenger` | `0e4c9f23` | hyperparameter_search |
+| 7 | — | `834acf9a` | baseline |
+| 8 | — | `0e4c9f23` | hyperparameter_search |
+| 9 | `@champion` | `2d5b4171` | baseline |
+| 10 | `@challenger` | `a93b2495` | hyperparameter_search |
 
 ## Comprobarlo en la interfaz
 
