@@ -7,9 +7,7 @@ from src.config import TARGET, TRAIN_PATH
 
 def test_cargar_csv(tmp_path):
     ruta = tmp_path / "datos.csv"
-    pd.DataFrame({"ram": [1024, 2048], "price_range": [0, 1]}).to_csv(
-        ruta, index=False
-    )
+    pd.DataFrame({"ram": [1024, 2048], "price_range": [0, 1]}).to_csv(ruta, index=False)
 
     cargador = CargadorDatos(ruta)
     datos = cargador.cargar()
@@ -45,4 +43,3 @@ def test_dataset_de_entrenamiento_del_proyecto():
     assert TARGET in datos.columns
     assert datos.drop(columns=[TARGET]).shape[1] == 20
     assert set(datos[TARGET].unique()) == {0, 1, 2, 3}
-

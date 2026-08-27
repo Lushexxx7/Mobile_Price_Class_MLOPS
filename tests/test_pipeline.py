@@ -13,17 +13,12 @@ def test_pipeline_entrena_guarda_y_predice(tmp_path):
         }
     )
     ruta = tmp_path / "modelo.pkl"
-    pipeline = PipelineTelefonos(
-        modelos=[ModeloRegresionLogistica()], test_size=0.25
-    )
+    pipeline = PipelineTelefonos(modelos=[ModeloRegresionLogistica()], test_size=0.25)
 
     resultados = pipeline.entrenar(datos)
     pipeline.guardar(ruta)
-    predicciones = PipelineTelefonos.predecir(
-        datos.drop(columns="price_range"), ruta
-    )
+    predicciones = PipelineTelefonos.predecir(datos.drop(columns="price_range"), ruta)
 
     assert resultados["modelo"].tolist() == ["Regresión Logística"]
     assert ruta.is_file()
     assert len(predicciones) == len(datos)
-

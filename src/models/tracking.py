@@ -114,9 +114,9 @@ class RastreadorMLflow:
                 "diagnosticos/clasificacion.json",
             )
             figura, eje = plt.subplots(figsize=(6, 5))
-            ConfusionMatrixDisplay(
-                confusion_matrix=diagnostico["matriz_confusion"]
-            ).plot(ax=eje, colorbar=False)
+            ConfusionMatrixDisplay(confusion_matrix=diagnostico["matriz_confusion"]).plot(
+                ax=eje, colorbar=False
+            )
             eje.set_title(f"Matriz de confusión - {modelo.nombre}")
             figura.tight_layout()
             mlflow.log_figure(figura, "graficas/matriz_confusion.png")
@@ -137,17 +137,12 @@ class RastreadorMLflow:
             }
 
     @staticmethod
-    def registrar_resumen(
-        registros: list[dict[str, Any]], nombre: str
-    ) -> pd.DataFrame:
+    def registrar_resumen(registros: list[dict[str, Any]], nombre: str) -> pd.DataFrame:
         filas = []
         for registro in registros:
             fila = {"modelo": registro["modelo"], **registro["metricas"]}
             fila.update(
-                {
-                    f"param_{clave}": valor
-                    for clave, valor in registro.get("parametros", {}).items()
-                }
+                {f"param_{clave}": valor for clave, valor in registro.get("parametros", {}).items()}
             )
             filas.append(fila)
         tabla = pd.DataFrame(filas)
@@ -173,9 +168,7 @@ class RastreadorMLflow:
         self, model_uri: str, alias: str, tags: dict[str, str] | None = None
     ) -> str:
         version = mlflow.register_model(model_uri, self.registered_model_name)
-        self.client.set_registered_model_alias(
-            self.registered_model_name, alias, version.version
-        )
+        self.client.set_registered_model_alias(self.registered_model_name, alias, version.version)
         for clave, valor in (tags or {}).items():
             self.client.set_model_version_tag(
                 self.registered_model_name, version.version, clave, valor

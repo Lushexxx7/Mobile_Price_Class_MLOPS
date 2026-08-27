@@ -17,9 +17,7 @@ class PreprocesadorTelefonos:
         self.test_size = test_size
         self.random_state = random_state
 
-    def separar_variables(
-        self, datos: pd.DataFrame
-    ) -> tuple[pd.DataFrame, pd.Series]:
+    def separar_variables(self, datos: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
         if self.target not in datos.columns:
             raise ValueError(f"No existe la variable objetivo: {self.target}")
         return datos.drop(columns=[self.target]), datos[self.target]
@@ -36,9 +34,7 @@ class PreprocesadorTelefonos:
         )
 
     @staticmethod
-    def preparar_inferencia(
-        datos: pd.DataFrame, columnas: list[str]
-    ) -> pd.DataFrame:
+    def preparar_inferencia(datos: pd.DataFrame, columnas: list[str]) -> pd.DataFrame:
         faltantes = sorted(set(columnas) - set(datos.columns))
         if faltantes:
             raise ValueError(f"Faltan columnas para predecir: {faltantes}")

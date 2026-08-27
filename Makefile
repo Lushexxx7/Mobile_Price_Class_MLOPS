@@ -1,4 +1,4 @@
-.PHONY: install test train tune dvc-repro mlflow notebooks serve \
+.PHONY: install test lint format train tune dvc-repro mlflow notebooks serve \
         docker-build docker-up docker-down docker-train docker-predict \
         docker-logs docker-ps docker-clean
 
@@ -7,6 +7,15 @@ install:
 
 test:
 	pytest
+
+# Revisa el estilo sin tocar nada.
+lint:
+	black --check src tests scripts main.py
+	flake8 src tests scripts main.py
+
+# Aplica el formato. Luego conviene un dvc status.
+format:
+	black src tests scripts main.py
 
 train:
 	python main.py

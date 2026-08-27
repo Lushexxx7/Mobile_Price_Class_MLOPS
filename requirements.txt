@@ -38,3 +38,8 @@ jupyterlab==4.6.3
 # httpx lo necesita fastapi.testclient para las pruebas de la API.
 httpx==0.28.1
 pytest==9.1.1
+
+# ----------------------------------------------------------- estilo (PEP8)
+# black formatea, flake8 revisa.
+black==25.9.0
+flake8==7.1.1

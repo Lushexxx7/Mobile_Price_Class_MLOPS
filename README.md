@@ -185,7 +185,10 @@ mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 50
 
 Abre `http://127.0.0.1:5000` y entra en **Entrenamiento de modelos**. Ojo: la
 base `mlflow.db`, `mlruns/` y `mlartifacts/` son locales y están ignorados por
-Git.
+Git. Como eso significa que un clon no trae ninguna corrida,
+el resumen de lo que hay registrado —corridas, métricas, versiones y aliases,
+extraído de la propia base— vive versionado en
+[`docs/mlflow_evidencia.md`](docs/mlflow_evidencia.md).
 
 Si defines `MLFLOW_TRACKING_URI`, esa variable manda sobre lo que diga
 `params.yaml`, así que puedes apuntar a un servidor de tracking sin tocar el
@@ -253,6 +256,40 @@ motivo aparente:
 El stack levanta tres servicios: `mlflow` (tracking y Model Registry), `api`
 (inferencia) y `trainer`, que no arranca con `up` porque lo llamamos solo cuando
 toca entrenar.
+
+### Desde un clon recién hecho
+
+Este es el orden completo, y el orden importa. Un repositorio recién clonado no
+trae datos ni modelo: los datos los administra DVC y el modelo lo produce el
+entrenamiento, así que hay que pasar por los seis pasos antes de esperar una
+predicción.
+
+```powershell
+dvc pull                          # 1. los datos: el trainer los lee por bind-mount
+docker compose build              # 2. construye mlflow y api
+docker compose build trainer      # 3. el trainer va aparte: está en el profile "tools"
+docker compose up -d              # 4. levanta mlflow :5000 y api :8000
+docker compose run --rm trainer   # 5. entrena y promueve el modelo a @champion
+docker compose restart api        # 6. la api recarga desde el Registry
+```
+
+Hasta el paso 5, `GET /health` responde **503** y el contenedor de la API figura
+como `unhealthy`. Eso es correcto, no es un arranque fallido: el proceso está
+vivo y contesta, lo que no hay todavía es un modelo que servir. Por eso `/health`
+distingue entre *el servicio responde* y *el modelo está listo*. A partir del
+paso 6 pasa a 200.
+
+El paso 3 es fácil de saltarse: `trainer` está bajo el profile `tools` para que
+no arranque con `up`, y como efecto secundario `docker compose build` a secas
+tampoco lo construye. Si lo omites no pasa nada grave, simplemente el paso 5
+construirá la imagen en ese momento y tardará más de lo que esperas.
+
+Con `make` es lo mismo en dos órdenes: `make docker-build` (que ya construye
+también el trainer) y `make docker-train`.
+
+### El día a día
+
+Cuando ya tienes el stack montado y los datos descargados:
 
 ```powershell
 docker compose build
@@ -332,3 +369,30 @@ datos y quieres exigir también esas:
 ```powershell
 pytest -m datos
 ```
+
+## Estilo de código
+
+El código sigue PEP8, y no de palabra: hay dos herramientas que lo verifican.
+`black` formatea y `flake8` revisa. Las dos vienen en `requirements.txt`.
+
+```powershell
+make lint      # black --check + flake8, no toca nada
+make format    # black aplica el formato
+```
+
+O directamente, si no usas `make`:
+
+```powershell
+black --check src tests scripts main.py
+flake8 src tests scripts main.py
+```
+
+La configuración de `black` está en `pyproject.toml` y la de `flake8` en
+`setup.cfg`, porque flake8 todavía no lee `pyproject.toml`. Ambas fijan el
+mismo límite de 100 caracteres por línea: si divergieran, una herramienta
+desharía el trabajo de la otra en cada pasada.
+
+Un aviso: `make format` reescribe ficheros de `src/` que `dvc.yaml` declara
+como dependencias de las etapas, así que después el pipeline se marca como
+obsoleto. Es esperado. Se arregla con `dvc repro` y no cambia las métricas,
+porque el reformateo no altera el comportamiento del código.

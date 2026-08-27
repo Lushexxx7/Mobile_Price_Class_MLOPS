@@ -40,7 +40,9 @@ class ModeloRegresionLogistica(ModeloClasificacion):
                 ("scaler", StandardScaler()),
                 (
                     "classifier",
-                    LogisticRegression(max_iter=int(parametros["max_iter"]), random_state=random_state),
+                    LogisticRegression(
+                        max_iter=int(parametros["max_iter"]), random_state=random_state
+                    ),
                 ),
             ]
         )

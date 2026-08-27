@@ -55,11 +55,13 @@ def _resolver_tracking_uri() -> str:
        `pytest` desde otra carpeta creaba dos bases distintas, con la mitad de
        los experimentos en cada una. Se ancla a la raiz del proyecto.
     """
-    uri = os.getenv("MLFLOW_TRACKING_URI") or str(_MLFLOW.get("tracking_uri", "sqlite:///mlflow.db"))
+    uri = os.getenv("MLFLOW_TRACKING_URI") or str(
+        _MLFLOW.get("tracking_uri", "sqlite:///mlflow.db")
+    )
 
     prefijo = "sqlite:///"
     if uri.startswith(prefijo):
-        ruta = Path(uri[len(prefijo):])
+        ruta = Path(uri[len(prefijo) :])
         if not ruta.is_absolute():
             ruta = PROJECT_ROOT / ruta
         return f"{prefijo}{ruta.as_posix()}"

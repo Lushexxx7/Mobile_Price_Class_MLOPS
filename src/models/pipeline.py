@@ -47,9 +47,11 @@ class PipelineTelefonos:
             metricas = self.evaluador.evaluar(y_val, predicciones)
             filas.append({"modelo": modelo.nombre, **metricas})
 
-        self.resultados = pd.DataFrame(filas).sort_values(
-            self.metrica_seleccion, ascending=False
-        ).reset_index(drop=True)
+        self.resultados = (
+            pd.DataFrame(filas)
+            .sort_values(self.metrica_seleccion, ascending=False)
+            .reset_index(drop=True)
+        )
         nombre_ganador = self.resultados.loc[0, "modelo"]
         self.mejor_modelo = next(
             modelo for modelo in self.modelos if modelo.nombre == nombre_ganador
@@ -86,9 +88,7 @@ class PipelineTelefonos:
     @classmethod
     def predecir(cls, datos: pd.DataFrame, ruta: str | Path = MODEL_PATH):
         artefacto = cls.cargar(ruta)
-        x = PreprocesadorTelefonos.preparar_inferencia(
-            datos, artefacto["columnas"]
-        )
+        x = PreprocesadorTelefonos.preparar_inferencia(datos, artefacto["columnas"])
         return artefacto["modelo"].predict(x)
 
     @classmethod
@@ -101,4 +101,3 @@ class PipelineTelefonos:
         resultados = pipeline.entrenar(datos)
         pipeline.guardar(ruta_modelo)
         return pipeline, resultados
-

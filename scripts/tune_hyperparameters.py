@@ -23,9 +23,7 @@ def candidatos():
         n_estimators = configuracion["n_estimators"]
         max_depth = configuracion["max_depth"]
         modelo = ModeloRandomForest()
-        modelo.modelo.set_params(
-            n_estimators=int(n_estimators), max_depth=max_depth
-        )
+        modelo.modelo.set_params(n_estimators=int(n_estimators), max_depth=max_depth)
         yield modelo, dict(configuracion)
     for c in busqueda["svm"]["C"]:
         modelo = ModeloSVM()
