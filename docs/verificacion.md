@@ -21,7 +21,7 @@ git status
 ```
 
 Confirma en qué rama estás y que no hay cambios sin guardar. Todo lo de esta
-guía se verifica sobre `LuisS-integ-docker`.
+guía se verifica sobre `main`.
 
 ```powershell
 python -m venv .venv
@@ -574,7 +574,7 @@ git clone https://github.com/Lushexxx7/Mobile_Price_Class_MLOPS.git
 ```
 
 ```powershell
-cd Mobile_Price_Class_MLOPS; git checkout LuisS-integ-docker
+cd Mobile_Price_Class_MLOPS; git checkout main
 ```
 
 ```powershell
