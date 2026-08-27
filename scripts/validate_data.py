@@ -1,3 +1,5 @@
+"""Comprueba que train.csv y test.csv sirven antes de entrenar."""
+
 import json
 
 from src.config import TARGET, TEST_PATH, TRAIN_PATH, VALIDATION_PATH
@@ -5,6 +7,14 @@ from src.data.load_data import CargadorDatos
 
 
 def main() -> None:
+    """Valida ambos CSV y escribe el reporte que consume DVC.
+
+    Falla a proposito antes que el entrenamiento: es mucho mas barato detectar
+    aqui que falta una columna que descubrirlo a mitad del fit.
+
+    :raises ValueError: si falta el objetivo en train o hay columnas de menos
+        en test
+    """
     train = CargadorDatos(TRAIN_PATH).cargar()
     test = CargadorDatos(TEST_PATH).cargar()
     if TARGET not in train.columns:
@@ -13,11 +23,23 @@ def main() -> None:
     if faltantes:
         raise ValueError(f"Faltan columnas en test.csv: {faltantes}")
     reporte = {
-        "train": {"filas": len(train), "columnas": len(train.columns), "nulos": int(train.isna().sum().sum()), "duplicados": int(train.duplicated().sum())},
-        "test": {"filas": len(test), "columnas": len(test.columns), "nulos": int(test.isna().sum().sum()), "duplicados": int(test.duplicated().sum())},
+        "train": {
+            "filas": len(train),
+            "columnas": len(train.columns),
+            "nulos": int(train.isna().sum().sum()),
+            "duplicados": int(train.duplicated().sum()),
+        },
+        "test": {
+            "filas": len(test),
+            "columnas": len(test.columns),
+            "nulos": int(test.isna().sum().sum()),
+            "duplicados": int(test.duplicated().sum()),
+        },
     }
     VALIDATION_PATH.parent.mkdir(parents=True, exist_ok=True)
-    VALIDATION_PATH.write_text(json.dumps(reporte, indent=2), encoding="utf-8")
+    # newline="\n": sin esto Windows escribe CRLF y el hash que calcula DVC
+    # deja de coincidir con el que produce la misma etapa en Linux.
+    VALIDATION_PATH.write_text(json.dumps(reporte, indent=2), encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":

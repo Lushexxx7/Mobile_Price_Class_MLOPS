@@ -1,0 +1,17 @@
+# Dependencias del pipeline de entrenamiento.
+#
+# Subconjunto de requirements.txt sin DVC, sin notebooks y sin el servidor
+# HTTP: dentro del contenedor los datos llegan montados como volumen, no se
+# descargan con `dvc pull`.
+#
+# Mismas versiones que el entorno local a proposito: joblib serializa el .pkl
+# y ese formato depende de la version de scikit-learn que lo escribio, asi que
+# entrenar en el contenedor y servir en local (o al reves) exige que coincidan.
+joblib==1.5.3
+matplotlib==3.11.1
+mlflow==3.15.1
+numpy==2.4.6
+pandas==2.3.3
+PyYAML==6.0.3
+scikit-learn==1.9.0
+scipy==1.17.1

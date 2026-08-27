@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "card-approval-mod5"
+name = "mobile-price-class-mlops"
 version = "0.1.0"
 description = "Clasificación de teléfonos por rango de precio"
 readme = "README.md"
@@ -13,7 +13,20 @@ requires-python = ">=3.10"
 where = ["."]
 include = ["src*"]
 
+[tool.black]
+# 100 en vez de los 88 por defecto, que se nos quedaba corto.
+line-length = 100
+target-version = ["py311"]
+extend-exclude = '/(\.venv|\.dvc|notebooks)/'
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 addopts = "-p no:cacheprovider"
 testpaths = ["tests"]
+# Las pruebas marcadas con `datos` necesitan los CSV que administra DVC. Se
+# saltan solas si no estan, para que la suite corra en un clon recien hecho
+# y dentro de la imagen, donde no hay credenciales de Google Drive.
+# Para exigirlas: pytest -m datos
+markers = [
+    "datos: requiere los ficheros de data/raw (ejecutar `dvc pull` antes)",
+]

@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import pytest
 
 from src.data.load_data import CargadorDatos
@@ -7,9 +7,7 @@ from src.config import TARGET, TRAIN_PATH
 
 def test_cargar_csv(tmp_path):
     ruta = tmp_path / "datos.csv"
-    pd.DataFrame({"ram": [1024, 2048], "price_range": [0, 1]}).to_csv(
-        ruta, index=False
-    )
+    pd.DataFrame({"ram": [1024, 2048], "price_range": [0, 1]}).to_csv(ruta, index=False)
 
     cargador = CargadorDatos(ruta)
     datos = cargador.cargar()
@@ -34,10 +32,14 @@ def test_archivo_inexistente(tmp_path):
         cargador.cargar()
 
 
+@pytest.mark.datos
+@pytest.mark.skipif(
+    not TRAIN_PATH.is_file(),
+    reason="data/raw/train.csv lo administra DVC; ejecuta `dvc pull` para incluir esta prueba.",
+)
 def test_dataset_de_entrenamiento_del_proyecto():
     datos = CargadorDatos(TRAIN_PATH).cargar()
 
     assert TARGET in datos.columns
     assert datos.drop(columns=[TARGET]).shape[1] == 20
     assert set(datos[TARGET].unique()) == {0, 1, 2, 3}
-

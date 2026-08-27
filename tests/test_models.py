@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import pytest
 
 from src.models.train import (
@@ -45,4 +45,3 @@ def test_random_forest_expone_importancias(datos_modelo):
 
     assert len(importancias) == x.shape[1]
     assert importancias.sum() == pytest.approx(1.0)
-

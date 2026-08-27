@@ -1,7 +1,9 @@
+"""Busqueda de hiperparametros: seis ensayos logueados en MLflow."""
+
 import json
 import mlflow
 
-from src.config import PARAMS, PROJECT_ROOT, TRAIN_PATH
+from src.config import MLFLOW_ALIAS_CHALLENGER, PARAMS, PROJECT_ROOT, TRAIN_PATH
 from src.data.load_data import CargadorDatos
 from src.data.preprocessing import PreprocesadorTelefonos
 from src.models.evaluate import EvaluadorModelo
@@ -14,6 +16,13 @@ from src.models.train import (
 
 
 def candidatos():
+    """Genera los seis modelos a probar, dos por familia.
+
+    Las combinaciones salen de `params.yaml`, no del codigo, para poder ampliar
+    la busqueda sin tocar este fichero.
+
+    :return: un generador de tuplas (modelo sin entrenar, sus parametros)
+    """
     busqueda = PARAMS["hyperparameter_search"]
     for c in busqueda["logistic_regression"]["C"]:
         modelo = ModeloRegresionLogistica()
@@ -23,9 +32,7 @@ def candidatos():
         n_estimators = configuracion["n_estimators"]
         max_depth = configuracion["max_depth"]
         modelo = ModeloRandomForest()
-        modelo.modelo.set_params(
-            n_estimators=int(n_estimators), max_depth=max_depth
-        )
+        modelo.modelo.set_params(n_estimators=int(n_estimators), max_depth=max_depth)
         yield modelo, dict(configuracion)
     for c in busqueda["svm"]["C"]:
         modelo = ModeloSVM()
@@ -34,6 +41,11 @@ def candidatos():
 
 
 def main() -> None:
+    """Prueba los seis candidatos y promueve al mejor como challenger.
+
+    Es la etapa `tune` del pipeline. No toca el alias de produccion: deja al
+    ganador como challenger para poder compararlo antes de promoverlo.
+    """
     datos = CargadorDatos(TRAIN_PATH).cargar()
     preprocesador = PreprocesadorTelefonos()
     x, y = preprocesador.separar_variables(datos)
@@ -61,7 +73,7 @@ def main() -> None:
         mlflow.log_param("best_child_run_id", mejor["run_id"])
         version = rastreador.registrar_y_asignar_alias(
             mejor["model_uri"],
-            "challenger",
+            MLFLOW_ALIAS_CHALLENGER,
             {"tipo": "hyperparameter_search", "parent_run_id": parent.info.run_id},
         )
     resumen = {
@@ -74,7 +86,10 @@ def main() -> None:
         "total_experimentos": len(resultados),
     }
     destino = PROJECT_ROOT / "reports" / "hyperparameter_search.json"
-    destino.write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
+    # newline="\n": ver nota en scripts/validate_data.py sobre los hashes de DVC.
+    destino.write_text(
+        json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
+    )
 
 
 if __name__ == "__main__":

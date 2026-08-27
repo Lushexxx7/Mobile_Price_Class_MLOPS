@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import pytest
 
 from src.data.preprocessing import PreprocesadorTelefonos
@@ -35,17 +35,12 @@ def test_division_es_estratificada_y_reproducible(datos_clasificacion):
 
 def test_rechaza_target_inexistente(datos_clasificacion):
     with pytest.raises(ValueError, match="objetivo"):
-        PreprocesadorTelefonos(target="inexistente").separar_variables(
-            datos_clasificacion
-        )
+        PreprocesadorTelefonos(target="inexistente").separar_variables(datos_clasificacion)
 
 
 def test_preparar_inferencia_descarta_id_y_ordena_columnas():
     datos = pd.DataFrame({"id": [1], "ram": [2048], "blue": [1]})
 
-    resultado = PreprocesadorTelefonos.preparar_inferencia(
-        datos, ["blue", "ram"]
-    )
+    resultado = PreprocesadorTelefonos.preparar_inferencia(datos, ["blue", "ram"])
 
     assert resultado.columns.tolist() == ["blue", "ram"]
-

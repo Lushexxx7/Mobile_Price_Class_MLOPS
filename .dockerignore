@@ -1,0 +1,46 @@
+# Contexto de build. Sin esto se envian cientos de MB al daemon: .venv y la
+# cache de DVC son con diferencia lo mas pesado del repositorio.
+
+# Entornos virtuales y caches de Python
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Historial de Git y caches de DVC
+.git/
+.github/
+.gitattributes
+.dvc/cache/
+.dvc/tmp/
+
+# SECRETOS: nunca deben acabar dentro de una imagen.
+# .dvc/config.local guarda el client_id y el client_secret de Google Drive.
+.dvc/config.local
+.env
+
+# MLflow local: sus artefactos apuntan a rutas C:/Users/... que no existen
+# dentro de un contenedor Linux. El stack levanta su propia base limpia.
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Datos y artefactos: entran por bind-mount en tiempo de ejecucion, no
+# horneados en la imagen. Asi la imagen no caduca al reentrenar.
+data/
+models/
+reports/
+
+# Material que no interviene en el runtime de los contenedores
+notebooks/
+docs/
+references/
+*.md
+LICENSE
+Makefile

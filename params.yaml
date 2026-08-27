@@ -15,9 +15,12 @@ svm:
 selection:
   metric: accuracy
 mlflow:
+  # La variable de entorno MLFLOW_TRACKING_URI tiene prioridad sobre este valor.
   tracking_uri: sqlite:///mlflow.db
   experiment_name: telefonos_price_classification
   registered_model_name: TelefonosPriceClassifier
+  alias_produccion: champion
+  alias_challenger: challenger
 hyperparameter_search:
   logistic_regression:
     C: [0.1, 10.0]

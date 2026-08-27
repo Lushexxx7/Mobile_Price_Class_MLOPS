@@ -1,3 +1,8 @@
+# Dependencias por subruta y no por directorio `src` completo.
+#
+# Con `deps: - src`, cualquier cambio en src/api invalidaba el entrenamiento y
+# obligaba a reentrenar tres modelos para publicar un endpoint. La API consume
+# el artefacto, no participa en producirlo, asi que no es dependencia de train.
 stages:
   validate:
     cmd: python -m scripts.validate_data
@@ -6,6 +11,7 @@ stages:
       - data/raw/test.csv
       - scripts/validate_data.py
       - src/config.py
+      - src/data/load_data.py
     params:
       - data.target
     outs:
@@ -16,7 +22,10 @@ stages:
     deps:
       - data/raw/train.csv
       - main.py
-      - src
+      - src/config.py
+      - src/data
+      - src/features
+      - src/models
     params:
       - data
       - logistic_regression
@@ -35,6 +44,8 @@ stages:
       - data/raw/test.csv
       - models/modelo_final.pkl
       - scripts/predict.py
+      - src/data/preprocessing.py
+      - src/models/pipeline.py
     outs:
       - data/processed/predicciones.csv
   tune:
@@ -42,7 +53,9 @@ stages:
     deps:
       - data/raw/train.csv
       - scripts/tune_hyperparameters.py
-      - src
+      - src/config.py
+      - src/data
+      - src/models
     params:
       - data
       - logistic_regression

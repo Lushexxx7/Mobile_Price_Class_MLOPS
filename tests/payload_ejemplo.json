@@ -1,0 +1,48 @@
+{
+  "data": [
+    {
+      "battery_power": 1900,
+      "blue": 1,
+      "clock_speed": 2.5,
+      "dual_sim": 1,
+      "fc": 12,
+      "four_g": 1,
+      "int_memory": 128,
+      "m_dep": 0.7,
+      "mobile_wt": 160,
+      "n_cores": 8,
+      "pc": 20,
+      "px_height": 1920,
+      "px_width": 1080,
+      "ram": 3800,
+      "sc_h": 16,
+      "sc_w": 8,
+      "talk_time": 18,
+      "three_g": 1,
+      "touch_screen": 1,
+      "wifi": 1
+    },
+    {
+      "battery_power": 700,
+      "blue": 0,
+      "clock_speed": 1.0,
+      "dual_sim": 0,
+      "fc": 2,
+      "four_g": 0,
+      "int_memory": 8,
+      "m_dep": 0.4,
+      "mobile_wt": 190,
+      "n_cores": 2,
+      "pc": 5,
+      "px_height": 480,
+      "px_width": 320,
+      "ram": 512,
+      "sc_h": 12,
+      "sc_w": 5,
+      "talk_time": 6,
+      "three_g": 1,
+      "touch_screen": 0,
+      "wifi": 0
+    }
+  ]
+}
