@@ -10,9 +10,39 @@ from fastapi.security import APIKeyHeader
 
 # Cadena vacia o variable ausente = autenticacion desactivada. Es lo que
 # queremos en local y en pytest; en el contenedor se inyecta desde .env.
-API_KEY = os.getenv("API_KEY", "")
+#
+# El `.strip()` no es cosmetico: un `.env` guardado en CRLF le pega un `\r`
+# invisible al valor, y docker compose lo inyecta tal cual. La comparacion
+# fallaba entonces contra una clave que era imposible de teclear.
+API_KEY = os.getenv("API_KEY", "").strip()
 
 _cabecera = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def revisar_configuracion() -> str | None:
+    """Devuelve un aviso si la API key configurada tiene mala pinta.
+
+    No corrige nada ni aborta el arranque: solo describe el problema para que
+    salga en el log. Un 401 sin contexto es carisimo de diagnosticar; este
+    aviso convierte media hora de curl a ciegas en una linea leible.
+    """
+    if not API_KEY:
+        return None
+
+    if API_KEY.startswith("<") and API_KEY.endswith(">"):
+        return (
+            "API_KEY conserva los angulos < > del generador. Se esta usando "
+            "literalmente, angulos incluidos: quitalos de .env y recrea el "
+            "contenedor con `docker compose up -d --force-recreate api`."
+        )
+
+    if any(caracter.isspace() for caracter in API_KEY):
+        return (
+            "API_KEY contiene espacios o saltos de linea en medio. La cabecera "
+            "X-API-Key tendria que reproducirlos exactamente para dar 200."
+        )
+
+    return None
 
 
 def verificar_api_key(clave: str | None = Security(_cabecera)) -> None:

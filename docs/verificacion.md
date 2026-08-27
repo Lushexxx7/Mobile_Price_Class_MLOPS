@@ -370,13 +370,40 @@ Lista vacía. Esperado: **422**, porque el esquema exige al menos una fila.
 
 Por defecto la API key está desactivada (variable vacía = sin autenticación),
 que es lo cómodo en local y en pytest. Para verificar que el mecanismo existe,
-para uvicorn y arráncalo con la variable puesta:
+para uvicorn y arráncalo con la variable puesta.
+
+Antes de nada, el aviso importante: si el stack de Docker está levantado, el
+contenedor `mlops-api` ya está publicando el **8000**. Windows deja que uvicorn
+se ate a `127.0.0.1:8000` aunque Docker tenga tomado `0.0.0.0:8000`, así que
+acabas con dos servidores distintos respondiendo al mismo `localhost:8000`
+según el momento, cada uno con su propia `API_KEY`. Es una tarde perdida
+mandando la clave correcta al servidor equivocado.
+
+Así que o paras el contenedor:
 
 ```powershell
-$env:API_KEY = "clave-de-prueba"; uvicorn src.api.app:app --port 8000
+docker compose stop api
 ```
 
-Ahora, desde otra terminal:
+...o arrancas uvicorn en otro puerto (el resto de esta sección usa el 8000; si
+eliges el 8001, cámbialo también en los `curl`):
+
+```powershell
+$env:API_KEY = "clave-de-prueba"; uvicorn src.api.app:app --port 8001
+```
+
+Para saber quién escucha en cada puerto, con el nombre del proceso:
+
+```powershell
+Get-NetTCPConnection -LocalPort 8000 -State Listen | Select-Object LocalAddress,OwningProcess,@{n='Proceso';e={(Get-Process -Id $_.OwningProcess).ProcessName}}
+```
+
+`com.docker.backend` y `wslrelay` son de Docker Desktop; cualquier `python` de
+esa lista es un uvicorn tuyo. Ojo con filtrar por `netstat -ano | findstr ":8000"`:
+si tu dirección IPv6 pública contiene el grupo `8000`, engancha decenas de
+conexiones del navegador que no tienen nada que ver.
+
+Con uvicorn ya arrancado, desde otra terminal:
 
 ```powershell
 curl.exe -i -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d "@tests/payload_ejemplo.json"
@@ -389,7 +416,17 @@ curl.exe -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/jso
 ```
 
 Esperado: **200** con las predicciones. Al terminar, limpia la variable con
-`Remove-Item Env:API_KEY` para que la siguiente terminal no la herede.
+`Remove-Item Env:API_KEY` para que la siguiente terminal no la herede, y vuelve
+a levantar el contenedor si lo paraste: `docker compose start api`.
+
+La suite de pytest ya no se ve afectada por esa variable: un fixture autouse en
+`tests/conftest.py` desactiva la autenticación durante los tests. Olvidarse la
+variable puesta hacía fallar seis tests de la API con 401 por un motivo que no
+tenía nada que ver con el código que estaban probando.
+
+Si la clave se rechaza y estás seguro de haberla escrito bien, mira el log del
+arranque: la API avisa cuando `API_KEY` conserva los ángulos `< >` del
+generador o trae espacios y saltos de línea dentro.
 
 ---
 

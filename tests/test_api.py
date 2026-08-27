@@ -12,6 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.api import app as modulo_app
+from src.api import security
 from src.api.model_loader import FEATURE_COLUMNS
 
 
@@ -138,3 +139,52 @@ def test_predict_sin_predict_proba_no_reporta_confianza(cliente_con_modelo):
     resultado = respuesta.json()["results"][0]
     assert resultado["confianza"] is None
     assert resultado["probabilidades"] is None
+
+
+def test_predict_exige_la_cabecera_cuando_hay_api_key(cliente_con_modelo, monkeypatch):
+    """Con clave configurada, una peticion sin cabecera no llega al modelo."""
+    monkeypatch.setattr(security, "API_KEY", "clave-de-prueba")
+
+    respuesta = cliente_con_modelo.post("/predict", json=payload())
+
+    assert respuesta.status_code == 401
+    assert respuesta.headers["www-authenticate"] == "ApiKey"
+
+
+def test_predict_acepta_la_cabecera_correcta(cliente_con_modelo, monkeypatch):
+    monkeypatch.setattr(security, "API_KEY", "clave-de-prueba")
+
+    respuesta = cliente_con_modelo.post(
+        "/predict",
+        json=payload(),
+        headers={"X-API-Key": "clave-de-prueba"},
+    )
+
+    assert respuesta.status_code == 200
+
+
+def test_predict_rechaza_la_clave_con_los_angulos_del_generador(cliente_con_modelo, monkeypatch):
+    """El fallo real que costo una tarde: la clave se guardo como `<clave>`.
+
+    Quien la teclea la escribe sin angulos y se lleva un 401 que parece un bug
+    del servidor. Se fija el comportamiento para que quede documentado que la
+    comparacion es literal, y que el aviso de arranque es lo que lo delata.
+    """
+    monkeypatch.setattr(security, "API_KEY", "<clave-de-prueba>")
+
+    respuesta = cliente_con_modelo.post(
+        "/predict",
+        json=payload(),
+        headers={"X-API-Key": "clave-de-prueba"},
+    )
+
+    assert respuesta.status_code == 401
+    assert security.revisar_configuracion() is not None
+
+
+def test_revisar_configuracion_calla_cuando_la_clave_esta_bien(monkeypatch):
+    monkeypatch.setattr(security, "API_KEY", "clave-de-prueba")
+    assert security.revisar_configuracion() is None
+
+    monkeypatch.setattr(security, "API_KEY", "")
+    assert security.revisar_configuracion() is None

@@ -235,6 +235,19 @@ hay que mandar la cabecera:
 curl -X POST http://localhost:8000/predict -H "X-API-Key: TU_CLAVE" -H "Content-Type: application/json" -d "@tests/payload_ejemplo.json"
 ```
 
+Desde `/docs` la clave se mete una sola vez en el botón **Authorize** de arriba
+a la derecha. Sin eso, todos los `Try it out` de `/predict` responden 401
+aunque el resto del payload sea correcto.
+
+Dos detalles que cuestan un rato descubrir cuando la clave se rechaza sin
+motivo aparente:
+
+- Docker Compose lee `.env` al **crear** el contenedor, así que editar la clave
+  no tiene efecto hasta recrearlo: `docker compose up -d --force-recreate api`.
+- El valor se usa literal. Si se pega envuelto en los ángulos `< >` del
+  generador de claves, o el `.env` está guardado en CRLF, la clave real
+  incluye esos caracteres. La API avisa de ambos casos en el log al arrancar.
+
 ## Docker
 
 El stack levanta tres servicios: `mlflow` (tracking y Model Registry), `api`

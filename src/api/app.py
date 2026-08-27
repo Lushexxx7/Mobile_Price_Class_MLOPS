@@ -25,7 +25,7 @@ from src.api.schemas import (
     RespuestaPrediccion,
     ResultadoPrediccion,
 )
-from src.api.security import verificar_api_key
+from src.api.security import revisar_configuracion, verificar_api_key
 from src.data.preprocessing import PreprocesadorTelefonos
 
 # El modelo vive aquí y no en una global suelta: `lifespan` lo escribe al
@@ -47,6 +47,10 @@ async def ciclo_vida(app: FastAPI):
         print(f"[API] Modelo cargado desde {metadatos['origen']} (versión {metadatos['version']}).")
     else:
         print("[API] Arranqué sin modelo: /health devolverá 503 hasta que lo haya.")
+
+    aviso = revisar_configuracion()
+    if aviso is not None:
+        print(f"[API] AVISO: {aviso}")
 
     yield
     _estado.clear()
